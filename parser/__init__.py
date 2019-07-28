@@ -1,17 +1,18 @@
 import os
 
-from parser.term import Term, TitleExcept, Title, CodeExcept, Code, HeadExcept, ParagraphExcept, ListExcept
+from parser.term import Tree
 
 
 class Parser:
     """
     Преобразование файла в объект Article
     """
+
     def __init__(self, document):
         self.content = self.check_document(document)
         self.root = None
         self.terms = None
-        self.offset = 0
+        self.offset = 1
 
     @staticmethod
     def check_document(document):
@@ -26,44 +27,15 @@ class Parser:
     def __exit__(self, *exc):
         return self.content.close()
 
-    @staticmethod
-    def check_line(line):
-        if '===' in line:
-            raise TitleExcept
-        if '***' in line:
-            raise HeadExcept
-        if '---' in line:
-            raise ParagraphExcept
-        if line[:3] == '    ':
-            raise CodeExcept
-        if line[0] == '*':
-            raise ListExcept
-
-    @staticmethod
-    def read_line(line):
-        try:
-            Parser.check_line(line)
-        except TitleExcept:
-            return Title(line)
-        except CodeExcept:
-            return Code()
-
-    @staticmethod
-    def read_element(word):
-        for element in word:
-            pass
-
     # Парсинг контента
     # Запись контента в базу
     # Сериализация
     # Десериализация
     def start(self):
+        parent = None
         with open(self.content) as f:
-            Term(f)
+            for line in f.readlines():
+                parent = Tree.read(line, parent)
+                Tree(offset=self.offset)
+                self.offset += 1
         return self
-
-
-def start(document):
-    with Parser(document) as _term:
-        print(_term)
-        _term.read_line(_term)
