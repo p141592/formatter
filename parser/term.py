@@ -1,5 +1,4 @@
 import hashlib
-from collections import Iterable
 
 
 class Term:
@@ -9,24 +8,7 @@ class Term:
     offset = 0
     parent = None
     current = None
-    root =
-
-    def __new__(cls, iterator: Iterable[str]):
-        """
-        Разбирает строку, ищет признак
-        Если встречается пуста строки
-        Или признак отличается от пред идущего -> Создается Term и ему устанавликается родитель
-
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        for i in
-        return TYPE_MAP[cls.get_sign(line)].__init__(
-            offset=cls.offset, parent=cls.parent
-        )
-        return Code.__init__(*args, **kwargs)
-        #return super(Term, cls).__new__(cls)
+    root = None
 
     def __init__(self, *args, **kwargs):
         self.offset = 0  # Номер строки в статье
@@ -34,14 +16,6 @@ class Term:
         self.parent = None
         self.content = []
         self.hash = None
-
-    def get_sign(self, line):
-        if line == '\n':
-            return None
-        elif '=' in line:
-            return 'title'
-        elif '*' in line:
-            return ''
 
     def append(self, line):
         self.content.append(line)
@@ -66,10 +40,16 @@ class Code(Term):
     """
 
 
+class CodeExcept(BaseException): pass
+
+
 class Title(Term):
     """
     Объект заголовка
     """
+
+
+class TitleExcept(BaseException): pass
 
 
 class Text(Term):
@@ -78,13 +58,25 @@ class Text(Term):
     """
 
 
+class TextExcept(BaseException): pass
+
+
 class List(Term):
     """
     Элементы списка
     """
 
 
-TYPE_MAP = {
-    '    ': Code,
+class ListExcept(BaseException): pass
 
-}
+
+class BlockEndExcept(BaseException): pass
+
+
+class HeadExcept(BaseException): pass
+
+
+class ParagraphExcept(BaseException): pass
+
+
+class FinishExcept(BaseException): pass
