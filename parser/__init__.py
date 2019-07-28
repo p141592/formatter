@@ -32,10 +32,9 @@ class Parser:
     # Сериализация
     # Десериализация
     def start(self):
-        parent = None
+        block = None
         with open(self.content) as f:
             for line in f.readlines():
-                parent = Tree.read(line, parent)
-                Tree(offset=self.offset)
+                block = Tree.read(element=line, parent=block, offset=self.offset)
                 self.offset += 1
         return self
