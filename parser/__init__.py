@@ -1,4 +1,5 @@
 import os
+import time
 
 from parser.term import Tree
 
@@ -34,7 +35,9 @@ class Parser:
     def start(self):
         block = None
         with open(self.content) as f:
+            print(self.content)
             for line in f.readlines():
                 block = Tree.read(element=line, parent=block, offset=self.offset)
+                time.sleep(1)
                 self.offset += 1
         return self
