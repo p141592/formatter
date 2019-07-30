@@ -1,7 +1,7 @@
 import pytest
 
 from parser import Parser
-from parser.term import ListExcept, BlockEndExcept, TitleExcept, CodeExcept
+from utils.exceptions import CodeExcept, TitleExcept, ListExcept, BlockEndExcept
 
 
 def test_parser():

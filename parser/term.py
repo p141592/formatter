@@ -1,11 +1,13 @@
-import hashlib
+import os
+import uuid
+
 
 ALLOW_TYPES = (
     'LIST', 'BLOCK', 'ARTICLE', 'PARAGRAPH', 'HEAD', 'LINE', 'TERM', 'CODE',
 )
 
 BLOCK_TYPES = (
-    'ARTICLE', 'HEAD', 'PARAGRAPH',
+    'ARTICLE', 'HEAD', 'PARAGRAPH', 'CODE', 'END'
 )
 
 LINE_TYPES = (
@@ -14,42 +16,26 @@ LINE_TYPES = (
 
 
 class Tree:
-    ROOT = None
-
     def __init__(self, *args,
-                 _type='term',
-                 title=None,
-                 offset=0,
                  parent=None,
                  content=None,
-                 filename=None,
                  **kwargs
                  ):
-        self.title = title
+        self.id = uuid.uuid4()
         self.children = []
         self.parent = parent
         self.hash = None
-        self.__content = content
-        self.offset = offset
-        self.filename = filename
-        self.type = _type
+        self.content = content
 
     def __str__(self):
-        return f'__{self.type}__.content: {self.content}'
+        result = [f'HEAD: {self.type}:{self.id}: {hash(self)}']
+        if self.content:
+            result.append(f'CONTENT: {self.content}\n')
+        if self.children:
+            result.append(f'CHILDREN: {list(map(lambda x: str(x), self.children))}')
 
-    def __hash__(self):
-        assert self.content, "Объект пуст"
+        return "\n".join(result)
 
-        if not self.hash:
-            _hash = None
-            if not self.children:
-                _hash = str(self.offset) + self.content
-            else:
-                _hash = "".join((hash(child) for child in self.children))
-
-            self.hash = int(hashlib.md5(_hash.encode('utf-8')).hexdigest(), 16)
-
-        return self.hash
 
     def __len__(self):
         """
@@ -61,9 +47,10 @@ class Tree:
             _result += len(i) if i.children else 1
         return _result
 
-    @property
-    def content(self):
-        return self.__content or [str(_child) for _child in self.children]
+    def set_type(self, type):
+        if type in ALLOW_TYPES and self.type != type:
+            self.type = type
+
 
     def get_line(self, number):
         if self.offset:
@@ -76,90 +63,51 @@ class Tree:
 
     def append(self, node):
         node.parent = self
+        self.hash = None
         self.children.append(node)
 
-    def set_type(self, _type):
-        if _type in ALLOW_TYPES and self.type != _type:
-            self.type = _type
+
+class Root(Tree):
+    def __init__(self):
+        self.type = 'ROOT'
+        super(Root, self).__init__()
+
+    def __str__(self):
+        result = [f'{self.type}:{self.id}: {hash(self)}',
+                  f'LENGTH: {len(self)} (terms)']
+
+        return "\n".join(result)
+
+class Document(Tree):
+    def __init__(self, file):
+        self.type = 'DOCUMENT'
+        assert Document.check_file(file), "Файл документа не существует"
+
+        self.file = open(file)
+        _, self.filename = os.path.split(file)
+        self.path = file
+        super(Document, self).__init__()
+
+    def __str__(self):
+        return self.filename
 
     @staticmethod
-    def get_line_sign(line):
-        """
-        Проверить строки на наличие признака строки
-        :param line:
-        :return: line, признак
-        """
-        if '*****' in line:
-            return 'ARTICLE'
-        elif '=====' in line:
-            return 'PARAGRAPH'
-        elif '-----' in line:
-            return 'HEAD'
-        elif line == '\n':
-            return 'END'
-        else:
-            return 'LINE'
+    def check_file(document):
+        return os.path.exists(document)
 
-    @staticmethod
-    def read(element, parent=None, offset=0):
+class Block(Tree):
+    def __init__(self, document):
+        document.append(self)
+        self.type = 'BLOCK'
+        super(Block, self).__init__()
 
-        """
-        Получает строку, разбирает ее
-        Если встречает признак в строке -- Меняет тип для родителя
+class Line(Tree):
+    def __init__(self, offset):
+        self.type = 'LINE'
+        self.offset = offset
+        super(Line, self).__init__()
 
-        Если сама строка является признаком -- Создается новый Block и возвращается
-        :param offset: Номер строки
-        :param parent: Родительский элемент дерева
-        :param element: строка файла
-        :return: parent елемент
-        """
-
-        if not parent:
-            _node = Tree(_type='BLOCK')
-            parent = _node
-            Tree.ROOT = _node
-
-        sign = Tree.get_line_sign(element)
-
-        if sign == 'END':
-            _node = Tree(_type='BLOCK')
-            Tree.ROOT.append(_node)
-            return _node
-
-        if sign in BLOCK_TYPES:
-            parent.set_type(sign)
-            return parent
-
-        line_element = Tree(_type='LINE', parent=parent)
-        parent.append(line_element)
-
-        for word in element.strip().split(' '):
-            line_element.append(
-                Tree(_type='TERM', content=word, parent=line_element, offset=offset)
-            )
-        print(Tree.ROOT)
-        return parent
-
-
-class CodeExcept(BaseException): pass
-
-
-class TitleExcept(BaseException): pass
-
-
-class TextExcept(BaseException): pass
-
-
-class ListExcept(BaseException): pass
-
-
-class BlockEndExcept(BaseException): pass
-
-
-class HeadExcept(BaseException): pass
-
-
-class ParagraphExcept(BaseException): pass
-
-
-class FinishExcept(BaseException): pass
+class Term(Tree):
+    def __init__(self, content):
+        self.type = 'TERM'
+        super(Term, self).__init__(content = content)
