@@ -64,25 +64,6 @@ class Parser:
         self.offset += 1
         return self.line
 
-    def load_bar(func):
-        def magic(self, document, *args, **kwargs):
-
-            #progress = int(self.FILES_LENGTH/len(self.files))
-            bar_len = 60
-            filled_len = int(round(bar_len * len(self.files) / float(self.FILES_LENGTH)))
-
-            percents = round(100.0 * len(self.files) / float(self.FILES_LENGTH), 1)
-            bar = '=' * filled_len + '-' * (bar_len - filled_len)
-
-            document = func(self, document, *args, **kwargs)
-
-            sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', document.filename))
-            sys.stdout.flush()  # As suggested by Rom Ruben
-            # sys.stdout.write('='*progress)
-            # sys.stdout.flush()
-            return document
-        return magic
-
     def read_document(self, document):
         self.document = Document(document)
         with self.document.file as f:
@@ -100,6 +81,8 @@ class Parser:
                 self.files.append(os.path.join(root, _file))
 
         self.FILES_LENGTH = len(self.files)
+
+        print(f'DOCUMENTS: {self.FILES_LENGTH}')
 
         items = list(self.files)
         l = len(items)
