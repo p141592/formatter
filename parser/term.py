@@ -3,7 +3,7 @@ import uuid
 
 
 ALLOW_TYPES = (
-    'LIST', 'BLOCK', 'ARTICLE', 'PARAGRAPH', 'HEAD', 'LINE', 'TERM', 'CODE',
+    'LIST', 'BLOCK', 'ARTICLE', 'PARAGRAPH', 'HEAD', 'LINE', 'TERM', 'CODE', 'DOCUMENT'
 )
 
 BLOCK_TYPES = (
@@ -43,6 +43,13 @@ class Tree:
             _result += len(i) if i.children else 1
         return _result
 
+    def get_parent(self, parent_type):
+        assert parent_type in ALLOW_TYPES, f"Указанный тип родителя \"{parent_type}\" запрещен"
+        if self.type == parent_type:
+            return self
+        if self.parent:
+            return self.get_parent(parent_type)
+
     def symbol_length(self):
         if self.content:
             return len(self.content)
@@ -68,6 +75,13 @@ class Tree:
         for _child in self.children:
             _result += _child.blocks_length()
         return _result
+
+    def search(self, term):
+        if self.content and self.content == term:
+            print(f'{self.get_parent("DOCUMENT").filename}: {self.get_parent("LINE").offset}')
+
+        for _child in self.children:
+            _child.search(term)
 
     def line_length(self):
         if self.type == 'LINE':
