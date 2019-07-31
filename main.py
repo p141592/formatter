@@ -19,4 +19,3 @@ if __name__ == '__main__':
     FINISH_TIME = datetime.datetime.now()
     DURATION = FINISH_TIME - START_TIME
     print(f'= DURATION: {DURATION}')
-    print(tree_root.search('Python'))
