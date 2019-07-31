@@ -7,7 +7,7 @@ from parser.translate import Translate
 SOURCE_DIR = os.path.join(
     os.path.dirname(
         os.path.abspath(__file__)
-    ), 'source/using')
+    ), 'source')
 
 
 if __name__ == '__main__':

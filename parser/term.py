@@ -50,7 +50,6 @@ class Tree:
 
         if self.parent:
             return self.parent.get_parent(parent_type)
-        print(self)
 
     def symbol_length(self):
         if self.content:
