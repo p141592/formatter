@@ -1,6 +1,7 @@
 import os
 
-from parser.term import Document, Line, Term, Root, BLOCK_TYPES, Block
+from parser import BLOCK_TYPES
+from parser.term import Document, Line, Term, Root, Block
 from parser.utils.tools import printProgressBar
 
 

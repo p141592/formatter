@@ -1,17 +1,11 @@
 import os
 import uuid
 
-
-ALLOW_TYPES = (
-    'LIST', 'BLOCK', 'ARTICLE', 'PARAGRAPH', 'HEAD', 'LINE', 'TERM', 'CODE', 'DOCUMENT'
-)
-
-BLOCK_TYPES = (
-    'ARTICLE', 'HEAD', 'PARAGRAPH', 'CODE', 'END'
-)
+from parser.mixins import TreeLenMixin
+from parser import ALLOW_TYPES
 
 
-class Tree:
+class Tree(TreeLenMixin):
     def __init__(self, *args,
                  parent=None,
                  content=None,
@@ -32,49 +26,12 @@ class Tree:
 
         return "\n".join(result)
 
-
-    def __len__(self):
-        """
-        Обходит дерево, считает количество термов
-        :return: Количество Term элементов
-        """
-        _result = 0
-        for i in self.children:
-            _result += len(i) if i.children else 1
-        return _result
-
     def get_parent(self, parent_type):
         assert parent_type in ALLOW_TYPES, f"Указанный тип родителя \"{parent_type}\" запрещен"
         if self.type == parent_type:
             return self
         if self.parent:
             return self.parent.get_parent(parent_type)
-
-    def symbol_length(self):
-        if self.content:
-            return len(self.content)
-        _result = 0
-        for _child in self.children:
-            _result += _child.symbol_length()
-        return _result
-
-    def documents_length(self):
-        if self.type == 'DOCUMENT':
-            return 1
-
-        _result = 0
-        for _child in self.children:
-            _result += _child.documents_length()
-        return _result
-
-    def blocks_length(self):
-        if self.type in BLOCK_TYPES:
-            return 1
-
-        _result = 0
-        for _child in self.children:
-            _result += _child.blocks_length()
-        return _result
 
     def search(self, term):
         if self.content and self.content == term:
@@ -83,14 +40,7 @@ class Tree:
         for _child in self.children:
             _child.search(term)
 
-    def line_length(self):
-        if self.type == 'LINE':
-            return 1
 
-        _result = 0
-        for _child in self.children:
-            _result += _child.line_length()
-        return _result
 
     def set_type(self, type):
         if type in ALLOW_TYPES and self.type != type:
