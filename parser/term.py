@@ -10,10 +10,6 @@ BLOCK_TYPES = (
     'ARTICLE', 'HEAD', 'PARAGRAPH', 'CODE', 'END'
 )
 
-LINE_TYPES = (
-    'CODE', 'TERM',
-)
-
 
 class Tree:
     def __init__(self, *args,
@@ -47,6 +43,41 @@ class Tree:
             _result += len(i) if i.children else 1
         return _result
 
+    def symbol_length(self):
+        if self.content:
+            return len(self.content)
+        _result = 0
+        for _child in self.children:
+            _result += _child.symbol_length()
+        return _result
+
+    def documents_length(self):
+        if self.type == 'DOCUMENT':
+            return 1
+
+        _result = 0
+        for _child in self.children:
+            _result += _child.documents_length()
+        return _result
+
+    def blocks_length(self):
+        if self.type in BLOCK_TYPES:
+            return 1
+
+        _result = 0
+        for _child in self.children:
+            _result += _child.blocks_length()
+        return _result
+
+    def line_length(self):
+        if self.type == 'LINE':
+            return 1
+
+        _result = 0
+        for _child in self.children:
+            _result += _child.line_length()
+        return _result
+
     def set_type(self, type):
         if type in ALLOW_TYPES and self.type != type:
             self.type = type
@@ -73,8 +104,15 @@ class Root(Tree):
         super(Root, self).__init__()
 
     def __str__(self):
-        result = [f'{self.type}:{self.id}: {hash(self)}',
-                  f'LENGTH: {len(self)} (terms)']
+        result = [
+            f'{self.type}:{self.id}: {hash(self)}',
+            f'LENGTH: \n'
+            f'  DOCUMENTS: {self.documents_length()}\n'
+            f'  BLOCKS: {self.blocks_length()}\n'
+            f'  LINES: {self.line_length()}\n'
+            f'  TERMS: {len(self)}\n'
+            f'  SYMBOLS: {self.symbol_length()}'
+        ]
 
         return "\n".join(result)
 

@@ -1,6 +1,8 @@
+import datetime
 import os
 
 from parser.parser import Parser
+from parser.translate import Translate
 
 SOURCE_DIR = os.path.join(
     os.path.dirname(
@@ -9,6 +11,11 @@ SOURCE_DIR = os.path.join(
 
 
 if __name__ == '__main__':
-    documents = Parser().read_all_source(SOURCE_DIR)
-    print(documents)
-
+    START_TIME = datetime.datetime.now()
+    tree_root = Parser().read_all_source(SOURCE_DIR)
+    print(f'RESULT TREE: {tree_root}')
+    # print(f'TRANSLATE PRICE: \n'
+    #       f'{Translate(tree_root).get_price()}')
+    FINISH_TIME = datetime.datetime.now()
+    DURATION = FINISH_TIME - START_TIME
+    print(f'= DURATION: {DURATION}')

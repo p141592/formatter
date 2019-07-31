@@ -1,5 +1,4 @@
 import os
-import sys
 
 from parser.term import Document, Line, Term, Root, BLOCK_TYPES, Block
 from parser.utils.tools import printProgressBar
@@ -82,7 +81,7 @@ class Parser:
 
         self.FILES_LENGTH = len(self.files)
 
-        print(f'DOCUMENTS: {self.FILES_LENGTH}')
+        print(f'DOCUMENTS IN QUEUE: {self.FILES_LENGTH}')
 
         items = list(self.files)
         l = len(items)
