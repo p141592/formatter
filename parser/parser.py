@@ -41,7 +41,8 @@ class Parser:
     def block_magic(func):
         def magic(self, line, *args, **kwargs):
             if line and not self.block:
-                self.block = Block(document=self.document)
+                self.block = Block()
+                self.document.append(self.block)
 
             sign = self.get_line_sign(line)
             if sign in BLOCK_TYPES:
