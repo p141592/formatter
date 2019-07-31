@@ -48,7 +48,7 @@ class Tree:
         if self.type == parent_type:
             return self
         if self.parent:
-            return self.get_parent(parent_type)
+            return self.parent.get_parent(parent_type)
 
     def symbol_length(self):
         if self.content:
