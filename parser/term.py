@@ -28,7 +28,7 @@ class Tree:
         if self.content:
             result.append(f'CONTENT: {self.content}\n')
         if self.children:
-            result.append(f'CHILDREN: {list(map(lambda x: str(x), self.children))}')
+            result.append(f'CHILDREN_LENGTH: {len(self.children)}')
 
         return "\n".join(result)
 
@@ -47,8 +47,10 @@ class Tree:
         assert parent_type in ALLOW_TYPES, f"Указанный тип родителя \"{parent_type}\" запрещен"
         if self.type == parent_type:
             return self
+
         if self.parent:
             return self.parent.get_parent(parent_type)
+        print(self)
 
     def symbol_length(self):
         if self.content:
@@ -148,8 +150,7 @@ class Document(Tree):
         return os.path.exists(document)
 
 class Block(Tree):
-    def __init__(self, document):
-        document.append(self)
+    def __init__(self):
         self.type = 'BLOCK'
         super(Block, self).__init__()
 
