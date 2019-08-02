@@ -11,8 +11,9 @@ class Parser:
     """
     FILES_LENGTH = 0
 
-    def __init__(self):
+    def __init__(self, format):
         self.root = Root()
+        self.format = format
         self.document = None
         self.line = None
         self.block = None
