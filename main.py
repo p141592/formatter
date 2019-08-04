@@ -2,7 +2,6 @@ import datetime
 import os
 
 from parser.parser import Parser
-from parser.translate import Translate
 
 SOURCE_DIR = os.path.join(
     os.path.dirname(

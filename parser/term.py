@@ -1,16 +1,8 @@
 import os
-import uuid
 
-from tree.mixins import TreeLenMixin
-from tree import BaseTree
-from parser import ALLOW_TYPES
+from parser.tree import BaseTree
 
-
-class Tree(BaseTree):
-    pass
-
-
-class Root(Tree):
+class Root(BaseTree):
     def __init__(self):
         self.type = 'ROOT'
         super(Root, self).__init__()
@@ -28,7 +20,7 @@ class Root(Tree):
 
         return "\n".join(result)
 
-class Document(Tree):
+class Document(BaseTree):
     def __init__(self, file):
         self.type = 'DOCUMENT'
         assert Document.check_file(file), "Файл документа не существует"
@@ -45,18 +37,18 @@ class Document(Tree):
     def check_file(document):
         return os.path.exists(document)
 
-class Block(Tree):
+class Block(BaseTree):
     def __init__(self):
         self.type = 'BLOCK'
         super(Block, self).__init__()
 
-class Line(Tree):
+class Line(BaseTree):
     def __init__(self, offset):
         self.type = 'LINE'
         self.offset = offset
         super(Line, self).__init__()
 
-class Term(Tree):
+class Term(BaseTree):
     def __init__(self, content):
         self.type = 'TERM'
         super(Term, self).__init__(content = content)

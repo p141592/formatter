@@ -1,6 +1,5 @@
 import os
 
-from parser import BLOCK_TYPES
 from parser.term import Document, Line, Term, Root, Block
 from parser.utils.tools import printProgressBar
 
@@ -11,32 +10,16 @@ class Parser:
     """
     FILES_LENGTH = 0
 
-    def __init__(self, format):
+    def __init__(self):
         self.root = Root()
-        self.format = format
         self.document = None
         self.line = None
         self.block = None
         self.offset = 1
         self.files = []
 
-    @staticmethod
-    def get_line_sign(line):
-        """
-        Проверить строки на наличие признака строки
-        :param line:
-        :return: line, признак
-        """
-        if '*****' in line:
-            return 'ARTICLE'
-        elif '=====' in line:
-            return 'PARAGRAPH'
-        elif '-----' in line:
-            return 'HEAD'
-        elif line == '\n':
-            return 'END'
-
     def read_word(self, word):
+        # найти в слове знаки препинания и создать для них отдельный Term
         return Term(content=word)
 
     def block_magic(func):
@@ -45,26 +28,22 @@ class Parser:
                 self.block = Block()
                 self.document.append(self.block)
 
-            sign = self.get_line_sign(line)
-            if sign in BLOCK_TYPES:
-                self.block.set_type(sign)
-
-                if sign == 'END':
-                    self.block = None
-                return None
+            if not line:
+                self.block = None
 
             return func(self, line, *args, **kwargs)
         return magic
 
     @block_magic
     def read_line(self, line):
-        self.line = Line(offset=self.offset)
+        if line:
+            self.line = Line(offset=self.offset)
 
-        for _word in line.strip().split(' '):
-            self.line.append(self.read_word(_word))
+            for _word in line.strip().split(' '):
+                self.line.append(self.read_word(_word))
 
-        self.offset += 1
-        return self.line
+            self.offset += 1
+            return self.line
 
     def read_document(self, document):
         self.document = Document(document)

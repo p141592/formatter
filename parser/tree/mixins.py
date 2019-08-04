@@ -2,6 +2,16 @@ from parser import BLOCK_TYPES
 
 
 class TreeLenMixin:
+    def __len__(self):
+        """
+        Обходит дерево, считает количество термов
+        :return: Количество Term элементов
+        """
+        _result = 0
+        for i in self.children:
+            _result += len(i) if i.children else 1
+        return _result
+
     def symbol_length(self):
         if self.content:
             return len(self.content)
@@ -35,14 +45,4 @@ class TreeLenMixin:
         _result = 0
         for _child in self.children:
             _result += _child.line_length()
-        return _result
-
-    def __len__(self):
-        """
-        Обходит дерево, считает количество термов
-        :return: Количество Term элементов
-        """
-        _result = 0
-        for i in self.children:
-            _result += len(i) if i.children else 1
         return _result
