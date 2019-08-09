@@ -18,4 +18,5 @@ FORMAT_SIGN = (
     (raw_line('parentheses *are* required --- allowing unparenthesized "nothing" in'), False),
     (raw_line('  **PEP 342** - Coroutines via Enhanced Generators'), True),
     (raw_line('   comparison'), True),
+    (raw_line('This is the MIT license: `<http://www.opensource.org/licenses/mit-license.php>`_'), True)
 )
