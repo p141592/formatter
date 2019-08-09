@@ -12,7 +12,7 @@ class BaseTree:
         self.content = content
 
     def __str__(self):
-        return f'{self.type}: {self.content or self.source}'
+        return self.content or self.source or ''
 
     def get_parent(self, parent_type):
         """Найти родителя заданного типа"""

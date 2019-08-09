@@ -37,15 +37,18 @@ class Parser:
     #
     # @block_magic
 
-    def line_magic(func):
-        def check_special_symbols(line):
-            if not isinstance(line, BlankLine):
-                reg = re.compile('[\W+^]+')
-                return bool(reg.match(line.source))
+    @staticmethod
+    def check_special_symbols(line):
+        if isinstance(line, BlankLine):
+            return False
 
+        reg = re.compile('[\W+^]+')
+        return bool(reg.match(line.source))
+
+    def line_magic(func):
         def magic(self, *args, **kwargs):
             line = func(self, *args, **kwargs)
-            line.format_sign = check_special_symbols(line)
+            line.format_sign = self.check_special_symbols(line)
             return line
         return magic
 
