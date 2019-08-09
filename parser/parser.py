@@ -1,7 +1,7 @@
 import os
 
 from parser.exceptions import PathException
-from parser.tree.nodes import Document, Line, Term, Block
+from parser.tree.nodes import Document, BlankLine, RawLine
 
 
 class Parser:
@@ -22,37 +22,29 @@ class Parser:
             return path
         raise PathException
 
-    def read_word(self, word):
-        return Term(content=word)
-
-    def block_magic(func):
-        def magic(self, line, *args, **kwargs):
-            if line and not self.block:
-                self.block = Block()
-                self.document.append(self.block)
-
-            if not line:
-                self.block = None
-
-            return func(self, line, *args, **kwargs)
-        return magic
-
-    @block_magic
+    # def block_magic(func):
+    #     def magic(self, line, *args, **kwargs):
+    #         if line and not self.block:
+    #             self.block = Block()
+    #             self.document.append(self.block)
+    #
+    #         if not line:
+    #             self.block = None
+    #
+    #         return func(self, line, *args, **kwargs)
+    #     return magic
+    #
+    # @block_magic
     def read_line(self, line):
-        if line:
-            self.line = Line(offset=self.offset, source=line)
-
-            for _word in line.strip().split(' '):
-                self.line.append(self.read_word(_word))
-
-            self.offset += 1
-            return self.line
+        self.line = RawLine(offset=self.offset, source=line) if line else BlankLine(offset=self.offset)
+        self.offset += 1
+        return self.line
 
     def read_document(self):
         with self.document.file as f:
             for line in f.readlines():
                 _line = self.read_line(line.strip('\n'))
                 if _line:
-                    self.block.append(_line)
+                    self.document.append(_line)
 
         return self.document

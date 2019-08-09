@@ -22,11 +22,21 @@ class Block(BaseTree):
         super(Block, self).__init__()
 
 class Line(BaseTree):
-    def __init__(self, offset, source):
+    def __init__(self, offset, source=None):
         self.type = 'LINE'
         self.offset = offset
         self.source = source # Содержит исходную строку целиком
         super(Line, self).__init__()
+
+class BlankLine(Line):
+    def __init__(self, *args, **kwargs):
+        self.type = 'BLANK'
+        super(BlankLine, self).__init__(*args, **kwargs)
+
+class RawLine(Line):
+    def __init__(self, *args, **kwargs):
+        self.type = 'RAW'
+        super(RawLine, self).__init__(*args, **kwargs)
 
 class Term(BaseTree):
     def __init__(self, content):
