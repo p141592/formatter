@@ -1,4 +1,5 @@
 import os
+import re
 
 from parser.exceptions import PathException
 from parser.tree.nodes import Document, BlankLine, RawLine
@@ -35,6 +36,20 @@ class Parser:
     #     return magic
     #
     # @block_magic
+
+    def line_magic(func):
+        def check_special_symbols(line):
+            if not isinstance(line, BlankLine):
+                reg = re.compile('[\W+^]+')
+                return bool(reg.match(line.source))
+
+        def magic(self, *args, **kwargs):
+            line = func(self, *args, **kwargs)
+            line.format_sign = check_special_symbols(line)
+            return line
+        return magic
+
+    @line_magic
     def read_line(self, line):
         self.line = RawLine(offset=self.offset, source=line) if line else BlankLine(offset=self.offset)
         self.offset += 1
@@ -48,3 +63,16 @@ class Parser:
                     self.document.append(_line)
 
         return self.document
+
+
+
+
+
+
+
+
+
+
+
+
+

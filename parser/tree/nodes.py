@@ -26,6 +26,7 @@ class Line(BaseTree):
         self.type = 'LINE'
         self.offset = offset
         self.source = source # Содержит исходную строку целиком
+        self.format_sign = False
         super(Line, self).__init__()
 
 class BlankLine(Line):
