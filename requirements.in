@@ -1,1 +1,5 @@
 pytest
+sqlalchemy
+alembic
+environs
+psycopg2-binary

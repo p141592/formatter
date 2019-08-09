@@ -66,16 +66,3 @@ class Parser:
                     self.document.append(_line)
 
         return self.document
-
-
-
-
-
-
-
-
-
-
-
-
-
