@@ -1,0 +1,16 @@
+version: '3.1'
+services:
+  project:
+    build:
+      dockerfile: Dockerfile
+      context: .
+
+  db:
+    image: postgres:latest
+    environment:
+      - PGDATA:/opt/db_data/
+    volumes:
+      - db_data:/opt/db_data/
+
+volumes:
+  db_data: {}
