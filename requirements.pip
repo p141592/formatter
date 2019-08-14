@@ -4,7 +4,6 @@
 #
 #    pip-compile --generate-hashes --output-file=requirements.pip requirements.in
 #
---index-url https://web-registry.k8s.public.ru/repository/pypi/simple
 
 alembic==1.0.11 \
     --hash=sha256:cdb7d98bd5cbf65acd38d70b1c05573c432e6473a82f955cdea541b5c153b0cc

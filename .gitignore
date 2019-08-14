@@ -1,3 +1,5 @@
 .ipynb_checkpoints
 .idea/
 *.pyc
+venv
+.env

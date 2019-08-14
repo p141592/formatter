@@ -1,25 +1,15 @@
-import datetime
 import uuid
 
-from sqlalchemy import Column, TEXT, DateTime, ForeignKey, String
+from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declared_attr
 
-from parser import Base
 
-
-class BaseTree(Base):
+class BaseTree:
     """
     Базовый класс нод.
     Управляет связями между нодами, добавлением элементов, преобразованием, и вообще всем.
     """
-    __tablename__ = 'node'
-
-    id = Column(UUID, default=uuid.uuid1, primary_key=True)
-    type = Column(String(30))
-    content = Column(TEXT)
-    created_date = Column(DateTime, default=datetime.datetime.now)
-    parent = Column(UUID, ForeignKey('node.id'))
-
     def __init__(self, *args, content=None, **kwargs):
         self.children = []
         self.parent = None
@@ -40,3 +30,11 @@ class BaseTree(Base):
         """Добавить ноду в этот корень"""
         node.parent = self
         self.children.append(node)
+
+
+class BaseNode:
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
