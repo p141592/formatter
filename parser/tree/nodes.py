@@ -1,13 +1,18 @@
 import os
 
-from parser.tree import BaseTree
+from parser.tree.models import DBLine, DBTerm, DBRoot, DBDocument, DBBlock
+from . import BaseTree
 
 class Root(BaseTree):
+    DB_MODEL = DBRoot
+
     def __init__(self):
         self.type = 'ROOT'
         super(Root, self).__init__()
 
 class Document(BaseTree):
+    DB_MODEL = DBDocument
+
     def __init__(self, file):
         self.type = 'DOCUMENT'
 
@@ -17,13 +22,15 @@ class Document(BaseTree):
         super(Document, self).__init__()
 
 class Block(BaseTree):
-    __tablename__ = 'Block'
+    DB_MODEL = DBBlock
 
     def __init__(self):
         self.type = 'BLOCK'
         super(Block, self).__init__()
 
 class Line(BaseTree):
+    DB_MODEL = DBLine
+
     def __init__(self, offset, source=None):
         self.type = 'LINE'
         self.offset = offset
@@ -42,6 +49,9 @@ class RawLine(Line):
         super(RawLine, self).__init__(*args, **kwargs)
 
 class Term(BaseTree):
+    DB_MODEL = DBTerm
+
     def __init__(self, content):
         self.type = 'TERM'
-        super(Term, self).__init__(content = content)
+        self.content = content # Обработанный контент
+        super(Term, self).__init__()

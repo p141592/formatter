@@ -1,8 +1,4 @@
-import uuid
-
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declared_attr
+from parser.db import DB
 
 
 class BaseTree:
@@ -10,10 +6,13 @@ class BaseTree:
     Базовый класс нод.
     Управляет связями между нодами, добавлением элементов, преобразованием, и вообще всем.
     """
+    DB_FIELDS = ('type', 'path', 'filename', 'offset', 'source', 'content', 'format_sign', 'parent', )
+
     def __init__(self, *args, content=None, **kwargs):
         self.children = []
         self.parent = None
         self.content = content # Готовое значение
+        self.db = DB()
 
     def __str__(self):
         return self.content or self.source or ''
@@ -31,10 +30,5 @@ class BaseTree:
         node.parent = self
         self.children.append(node)
 
-
-class BaseNode:
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
-    id = Column(UUID, default=uuid.uuid1, primary_key=True)
+    def to_db(self):
+        return filter(lambda x: x if x in BaseTree.DB_FIELDS else None, self.__dict__)

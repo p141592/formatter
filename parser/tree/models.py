@@ -4,51 +4,47 @@ import uuid
 from sqlalchemy import Column, TEXT, DateTime, ForeignKey, String, Integer, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from environs import Env
+from parser.db import DB
 
-from parser.tree import BaseNode
-
-env = Env()
-env.read_env()
-
-engine = create_engine(env.str('DB_URL', default='postgresql+psycopg2://postgres:postgres@localhost:5432/postgres'))
-
-Base = declarative_base(cls=BaseNode)
-
-class DBRoot(Base):
-    """
-    Корень документации, по которому можно сделать выборку только по конкретным материалам
-    """
+class DBRoot(DB.BASE):
     __tablename__ = "Root"
 
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
     url = Column(String, comment="")
+    created_date = Column(DateTime, default=datetime.datetime.now)
 
-
-class DBDocument(Base):
-    """
-    Хранение документа
-    """
+class DBDocument(DB.BASE):
     __tablename__ = "Document"
 
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
+    parent = Column(UUID, ForeignKey('Root.id'))
+    created_date = Column(DateTime, default=datetime.datetime.now)
     filename = Column(String(50), comment='Название документа')
     path = Column(String(100), comment='Путь до файла, который был объявлени при создании документа')
 
-class DBNode(Base):
-    """
-    Таблица, для записи нод дерева
-    """
-    __tablename__ = "Node"
+class DBBlock(DB.BASE):
+    __tablename__ = "Block"
 
-    type = Column(String(30))
-
-    parent = Column(UUID, ForeignKey('node.id'))
-
-    offset = Column(Integer, nullable=True) # Номер строки файла
-
-    source = Column(TEXT, nullable=True)
-    content = Column(TEXT, nullable=True)
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
+    parent = Column(UUID, ForeignKey('Document.id'))
     created_date = Column(DateTime, default=datetime.datetime.now)
 
+class DBLine(DB.BASE):
+    __tablename__ = "Line"
+
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
+    parent = Column(UUID, ForeignKey('Block.id'))
+    created_date = Column(DateTime, default=datetime.datetime.now)
+    type = Column(String(30))
+    source = Column(TEXT, nullable=True)
+    offset = Column(Integer, nullable=True)
     format_sign = Column(Boolean)
+
+class DBTerm(DB.BASE):
+    __tablename__ = "Term"
+
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
+    parent = Column(UUID, ForeignKey('Line.id'))
+    created_date = Column(DateTime, default=datetime.datetime.now)
+    content = Column(TEXT, nullable=True)
+

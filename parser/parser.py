@@ -1,9 +1,8 @@
 import os
 import re
 
-from parser.exceptions import PathException
-from parser.tree.nodes import Document, BlankLine, RawLine
-
+from .exceptions import PathException
+from .tree.nodes import Document, BlankLine, RawLine
 
 class Parser:
     """
