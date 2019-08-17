@@ -10,6 +10,7 @@ class Root(BaseTree):
     def __init__(self):
         self.type = 'ROOT'
         self.db = DB()
+        self.children_type = Document
         super(Root, self).__init__()
 
 class Document(BaseTree):
@@ -17,7 +18,7 @@ class Document(BaseTree):
 
     def __init__(self, file):
         self.type = 'DOCUMENT'
-
+        self.children_type = Block
         self.file = open(file)
         _, self.filename = os.path.split(file)
         self.path = file
@@ -28,6 +29,7 @@ class Block(BaseTree):
 
     def __init__(self):
         self.type = 'BLOCK'
+        self.children_type = Line
         super(Block, self).__init__()
 
 class Line(BaseTree):
@@ -40,10 +42,12 @@ class Line(BaseTree):
         self.format_sign = False
         super(Line, self).__init__()
 
-class RawLine(Line):
-    def __init__(self, *args, **kwargs):
-        self.type = 'RAW'
-        super(RawLine, self).__init__(*args, **kwargs)
+class Sentence(BaseTree):
+    def __init__(self):
+        self.type = 'SENTENCE'
+        self.children_type = Term
+        super(Sentence, self).__init__()
+
 
 class Term(BaseTree):
     DB_MODEL = DBTerm

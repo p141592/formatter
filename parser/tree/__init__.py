@@ -14,6 +14,7 @@ class BaseTree:
         self.content = content # Готовое значение
         self.offset = 0 # Позиция в списке children у родителя
         self.position = 0 # Позиция в источнике
+        self.children_type = None
 
     def __str__(self):
         return self.content or self.source or ''
@@ -26,7 +27,13 @@ class BaseTree:
         if self.parent:
             return self.parent.get_parent(parent_type)
 
-    def append(self, node):
+    def create_child(self, *args, **kwargs):
+        """Создать ребенка"""
+        kwargs['offset'] = len(self.children)
+        _child = self.children_type(*args, **kwargs)
+        self._append(_child)
+
+    def _append(self, node):
         """Добавить ноду в этот корень"""
         node.parent = self
         self.children.append(node)
