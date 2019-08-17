@@ -1,5 +1,6 @@
 import os
 
+from parser.db import DB
 from parser.tree.models import DBLine, DBTerm, DBRoot, DBDocument, DBBlock
 from . import BaseTree
 
@@ -8,6 +9,7 @@ class Root(BaseTree):
 
     def __init__(self):
         self.type = 'ROOT'
+        self.db = DB()
         super(Root, self).__init__()
 
 class Document(BaseTree):
@@ -32,16 +34,11 @@ class Line(BaseTree):
     DB_MODEL = DBLine
 
     def __init__(self, offset, source=None):
-        self.type = 'LINE'
+        self.type = 'LINE' if source else 'BLANK'
         self.offset = offset
         self.source = source # Содержит исходную строку целиком
         self.format_sign = False
         super(Line, self).__init__()
-
-class BlankLine(Line):
-    def __init__(self, *args, **kwargs):
-        self.type = 'BLANK'
-        super(BlankLine, self).__init__(*args, **kwargs)
 
 class RawLine(Line):
     def __init__(self, *args, **kwargs):

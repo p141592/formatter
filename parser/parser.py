@@ -2,7 +2,7 @@ import os
 import re
 
 from .exceptions import PathException
-from .tree.nodes import Document, BlankLine, RawLine
+from .tree.nodes import Document, RawLine
 
 class Parser:
     """
@@ -38,7 +38,7 @@ class Parser:
 
     @staticmethod
     def check_special_symbols(line):
-        if isinstance(line, BlankLine):
+        if line.type == 'BLANK':
             return False
 
         reg = re.compile('[\W+^]+')
@@ -53,7 +53,7 @@ class Parser:
 
     @line_magic
     def read_line(self, line):
-        self.line = RawLine(offset=self.offset, source=line) if line else BlankLine(offset=self.offset)
+        self.line = RawLine(offset=self.offset, source=line or None)
         self.offset += 1
         return self.line
 
