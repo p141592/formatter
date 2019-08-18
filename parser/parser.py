@@ -1,8 +1,9 @@
 import os
 import re
 
+from parser.db import DB
 from .exceptions import PathException
-from .tree.nodes import Document, RawLine, Block
+from .tree.nodes import Document, Line
 
 
 class Parser:
@@ -14,6 +15,7 @@ class Parser:
     def __init__(self, document=None):
         self.files = []
 
+        self.db = DB()
         self.document = Document(self.check_file(document))
         self.prev_line = None  # Ссылка на предидущий объект
         self.line = None
@@ -30,28 +32,15 @@ class Parser:
 
     @staticmethod
     def check_special_symbols(line):
-        if line.type == 'BLANK':
+        if not line:
             return False
 
         reg = re.compile('[\W+^]+')
         return bool(reg.match(line.source))
 
-    def block_magic(func):
-        def magic(self, line, *args, **kwargs):
-            if line and not self.block:
-                self.block = Block()
-                self.document.append(self.block)
-
-            if not line:
-                self.block = None
-
-            return func(self, line, *args, **kwargs)
-        return magic
-
-    @block_magic
     def read_line(self, line):
-        self.line = RawLine(offset=self.offset, source=line or None)
-        self.line.format_sign = self.check_special_symbols(line)
+        self.line = self.document.create_child(child_type=Line, offset=self.offset, source=line or None)
+        self.line.format_sign = self.check_special_symbols(self.line)
         self.offset += 1
         return self.line
 
@@ -59,7 +48,5 @@ class Parser:
         with self.document.file as f:
             for line in f.readlines():
                 _line = self.read_line(line.strip('\n'))
-                if _line:
-                    self.document.append(_line)
 
         return self.document

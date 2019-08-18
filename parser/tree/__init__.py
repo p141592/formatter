@@ -8,13 +8,12 @@ class BaseTree:
     """
     DB_FIELDS = ('type', 'path', 'filename', 'offset', 'source', 'content', 'format_sign', 'parent', )
 
-    def __init__(self, *args, content=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.children = []
         self.parent = None
-        self.content = content # Готовое значение
-        self.offset = 0 # Позиция в списке children у родителя
-        self.position = 0 # Позиция в источнике
         self.children_type = None
+        self._previous = None
+        self._next = None
 
     def __str__(self):
         return self.content or self.source or ''
@@ -27,11 +26,15 @@ class BaseTree:
         if self.parent:
             return self.parent.get_parent(parent_type)
 
-    def create_child(self, *args, **kwargs):
+    def create_child(self, *args, child_type=None, **kwargs):
         """Создать ребенка"""
-        kwargs['offset'] = len(self.children)
-        _child = self.children_type(*args, **kwargs)
+        kwargs['position'] = len(self.children)
+        if child_type:
+            _child = child_type(*args, **kwargs)
+        else:
+            _child = self.children_type(*args, **kwargs)
         self._append(_child)
+        return _child
 
     def _append(self, node):
         """Добавить ноду в этот корень"""
@@ -39,11 +42,16 @@ class BaseTree:
         self.children.append(node)
 
     def previous(self):
-        """Предидущий объект того же типа
-        """
+        """Предидущий объект того же типа"""
+        if not self._previous and self.parent.children[-1] != self.position:
+            self._previous = self.parent.children[self.position-1]
+        return self._previous
 
     def next(self):
         """Следующий объект того же типа"""
+        if not self._next and self.position != 0:
+            self._next = self.parent.children[self.position - 1]
+        return self._next
 
     def to_db(self):
         return filter(lambda x: x if x in BaseTree.DB_FIELDS else None, self.__dict__)

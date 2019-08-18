@@ -39,12 +39,3 @@ class DBLine(DB.BASE):
     source = Column(TEXT, nullable=True)
     offset = Column(Integer, nullable=True)
     format_sign = Column(Boolean)
-
-class DBTerm(DB.BASE):
-    __tablename__ = "Term"
-
-    id = Column(UUID, default=uuid.uuid1, primary_key=True)
-    parent = Column(UUID, ForeignKey('Line.id'))
-    created_date = Column(DateTime, default=datetime.datetime.now)
-    content = Column(TEXT, nullable=True)
-

@@ -49,8 +49,7 @@ def read_all_source(dir):
     printProgressBar(0, FILES_LENGTH, prefix='Progress:', suffix='Complete', length=50)
     for i, item in enumerate(items):
         _document = Parser(ALL_FILES.pop()).read_document()
-        if _document:
-            ROOT.append(_document)
+        ROOT._append(_document)
 
         printProgressBar(i + 1, l, prefix='Progress:', suffix='Complete', length=50)
 
