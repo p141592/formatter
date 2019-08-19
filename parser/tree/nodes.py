@@ -25,9 +25,8 @@ class Block(BaseTree):
         super(Block, self).__init__(*args, **kwargs)
 
 class Line(BaseTree):
-    def __init__(self, *args, line_number=None, position=None, content=None, **kwargs):
+    def __init__(self, *args, line_number=None, content=None, **kwargs):
         self.content = content # Готовое значение
-        self.position = position # Позиция в списке children у родителя
         self.type = 'LINE' if content else 'BLANK'
         self.line_number = line_number
         self.format_sign = False

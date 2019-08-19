@@ -48,7 +48,7 @@ def read_all_source(dir):
 
     printProgressBar(0, FILES_LENGTH, prefix='Progress:', suffix='Complete', length=50)
     for i, item in enumerate(items):
-        _document = Parser(ALL_FILES.pop()).read_document()
+        _document = Parser(ALL_FILES.pop(), position=i).read_document()
         ROOT._append(_document)
 
         printProgressBar(i + 1, l, prefix='Progress:', suffix='Complete', length=50)
@@ -59,8 +59,8 @@ if __name__ == '__main__':
     START_TIME = datetime.datetime.now()
 
     tree_root = read_all_source(SOURCE_DIR)
-    Parser.DB.create_all()
-    for i in tree_root.children:
-        Parser.flush_document(i)
+
+    print("Запись в базу")
+    tree_root.db_flush()
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')

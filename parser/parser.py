@@ -11,18 +11,16 @@ class Parser:
     Преобразование файла в объект Document
     """
     FILES_LENGTH = 0
-    DB = DB()
 
-    def __init__(self, document=None):
+    def __init__(self, document=None, position=None):
         self.files = []
 
-        self.document = Document(self.check_file(document))
+        self.document = Document(self.check_file(document), position=position)
         self.prev_line = None  # Ссылка на предидущий объект
         self.line = None
         self.block = None
-
+        self.position = 0
         self.line_number = 1
-        self.position = 0 # Индекс в списке children родителя
 
     @staticmethod
     def check_file(path):
@@ -50,9 +48,3 @@ class Parser:
                 _line = self.read_line(line.strip('\n'))
 
         return self.document
-
-    @staticmethod
-    def flush_document(document):
-        """Сбросить объект в базу"""
-        assert isinstance(document, Document)
-        Parser.DB.insert(document.to_db())
