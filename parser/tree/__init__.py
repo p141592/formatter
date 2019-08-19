@@ -1,5 +1,11 @@
-from parser.db import DB
+import datetime
+import uuid
 
+from sqlalchemy import Column, TEXT, DateTime, ForeignKey, String, Integer, Boolean
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
+from parser.db import DB
 
 class BaseTree:
     """
@@ -13,9 +19,9 @@ class BaseTree:
         
         # Связи объекта
         'parent', # ForeignKey на родителя объекта
-        'children', # ManyToMany список объектов
-        'previous', # Вычислямое поле предидущего элемента в списке родителя
-        'next', # Вычисляемое поле, следующий элемент
+        #'children', # ManyToMany список объектов
+        #'previous', # Вычислямое поле предидущего элемента в списке родителя
+        #'next', # Вычисляемое поле, следующий элемент
         'position', # Позиция в списке children у родителя
 
         # Сохранение информации источника
@@ -76,4 +82,28 @@ class BaseTree:
         return self._next
 
     def to_db(self):
-        return filter(lambda x: self.__dict__.get(x) if x in BaseTree.DB_FIELDS else None, self.__dict__)
+        """Собрать все ключи для таблици в базе и вернуть BaseNodeDB объект"""
+        return BaseNodeDB(
+            **{k: v for k,v in self.__dict__.items() if k in self.DB_FIELDS}
+        )
+
+
+class BaseNodeDB(DB.BASE):
+    """Таблица для сохранения элементов дерева в базу"""
+    __tablename__ = "Node"
+
+    id = Column(UUID, default=uuid.uuid1, primary_key=True)
+
+    type = Column(String(30))
+    format_sign = Column(Boolean)
+
+    parent = relationship(lambda: BaseNodeDB, remote_side=id, backref='parent')
+    position = Column(Integer, nullable=True)
+
+    path = Column(String(100), comment='Путь до файла, который был объявлени при создании документа')
+    filename = Column(String(50), comment='Название документа')
+
+    line_number = Column(Integer, nullable=True)
+    content = Column(TEXT, nullable=True)
+
+    created_date = Column(DateTime, default=datetime.datetime.now)

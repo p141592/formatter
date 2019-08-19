@@ -59,5 +59,8 @@ if __name__ == '__main__':
     START_TIME = datetime.datetime.now()
 
     tree_root = read_all_source(SOURCE_DIR)
+    Parser.DB.create_all()
+    for i in tree_root.children:
+        Parser.flush_document(i)
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')

@@ -18,7 +18,7 @@ class DB:
     def create_session(self):
         _session = sessionmaker(bind=self.ENGINE)
         _session.configure(bind=self.ENGINE)
-        self.session = _session()
+        return _session()
 
     def select(self):
         pass
