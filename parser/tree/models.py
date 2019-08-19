@@ -36,6 +36,6 @@ class DBLine(DB.BASE):
     parent = Column(UUID, ForeignKey('Block.id'))
     created_date = Column(DateTime, default=datetime.datetime.now)
     type = Column(String(30))
-    source = Column(TEXT, nullable=True)
-    offset = Column(Integer, nullable=True)
+    content = Column(TEXT, nullable=True)
+    line_number = Column(Integer, nullable=True)
     format_sign = Column(Boolean)

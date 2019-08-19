@@ -26,10 +26,7 @@ class Document(BaseTree):
 class Block(BaseTree):
     DB_MODEL = DBBlock
 
-    def __init__(self, content, position, *args, **kwargs):
-        self.content = content # Готовое значение
-        self.offset = 0 # Позиция в источнике
-        self.position = position # Позиция в списке children у родителя
+    def __init__(self, *args, **kwargs):
         self.type = 'BLOCK'
         self.children_type = Line
         super(Block, self).__init__(*args, **kwargs)
@@ -37,13 +34,11 @@ class Block(BaseTree):
 class Line(BaseTree):
     DB_MODEL = DBLine
 
-    def __init__(self, *args, offset=None, position=None, source=None, content=None, **kwargs):
+    def __init__(self, *args, line_number=None, position=None, content=None, **kwargs):
         self.content = content # Готовое значение
-        self.offset = 0 # Позиция в источнике
         self.position = position # Позиция в списке children у родителя
-        self.type = 'LINE' if source else 'BLANK'
-        self.offset = offset
-        self.source = source # Содержит исходную строку целиком
+        self.type = 'LINE' if content else 'BLANK'
+        self.line_number = line_number
         self.format_sign = False
         super(Line, self).__init__(*args, **kwargs)
 

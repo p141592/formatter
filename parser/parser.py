@@ -21,7 +21,7 @@ class Parser:
         self.line = None
         self.block = None
 
-        self.offset = 1
+        self.line_number = 1
         self.position = 0 # Индекс в списке children родителя
 
     @staticmethod
@@ -36,12 +36,12 @@ class Parser:
             return False
 
         reg = re.compile('[\W+^]+')
-        return bool(reg.match(line.source))
+        return bool(reg.match(line.content))
 
     def read_line(self, line):
-        self.line = self.document.create_child(child_type=Line, offset=self.offset, source=line or None)
+        self.line = self.document.create_child(child_type=Line, line_number=self.line_number, content=line or None)
         self.line.format_sign = self.check_special_symbols(self.line)
-        self.offset += 1
+        self.line_number += 1
         return self.line
 
     def read_document(self):
