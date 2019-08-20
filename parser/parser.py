@@ -44,7 +44,10 @@ class Parser:
 
     def read_document(self):
         with self.document.file as f:
-            for line in f.readlines():
-                _line = self.read_line(line.strip('\n'))
+            try:
+                for line in f.readlines():
+                    _line = self.read_line(line.strip('\n'))
+            except UnicodeDecodeError:
+                print(f'Ошибка при чтении файла {self.document.path}')
 
         return self.document

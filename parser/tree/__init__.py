@@ -49,6 +49,9 @@ class BaseTree:
     def __str__(self):
         return self.content or ''
 
+    def __len__(self):
+        return sum(map(len, self.children)) + 1
+
     def get_parent(self, parent_type):
         """Найти родителя заданного типа"""
         if self.type == parent_type:

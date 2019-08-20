@@ -60,7 +60,10 @@ if __name__ == '__main__':
 
     tree_root = read_all_source(SOURCE_DIR)
 
+    print(f"Количество элементов в дереве: {len(tree_root)}")
+
     print("Запись в базу")
-    tree_root.db_flush()
+
+    #tree_root.db_flush()
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')

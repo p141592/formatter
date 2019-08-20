@@ -8,25 +8,25 @@ class DB:
     """
     __instance = None
     BASE = declarative_base()
-    ENGINE = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/postgres')
+    ENGINE = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/formatter')
+    session = None
 
     def __new__(cls, *args, **kwargs):
         if cls.__instance is None:
             cls.create_all()
+            cls.session = cls.create_session()
             cls.__instance = super().__new__(cls)
 
         return cls.__instance
-
-    def __init__(self):
-        self.session = self.create_session()
 
     @staticmethod
     def create_all():
         DB.BASE.metadata.create_all(DB.ENGINE)
 
-    def create_session(self):
-        _session = sessionmaker(bind=self.ENGINE)
-        _session.configure(bind=self.ENGINE)
+    @classmethod
+    def create_session(cls):
+        _session = sessionmaker(bind=cls.ENGINE)
+        _session.configure(bind=cls.ENGINE)
         return _session()
 
     def exists(self, object):
