@@ -37,7 +37,11 @@ class DB:
     def select(self):
         pass
 
-    def insert(self, object):
+    def add(self, object):
         if not self.exists(object):
             self.session.add(object)
-            self.session.commit()
+
+    def commit(self, generator=None):
+        if generator:
+            self.session.add_all(iter(generator))
+        self.session.commit()

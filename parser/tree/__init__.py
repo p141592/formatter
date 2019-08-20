@@ -1,13 +1,12 @@
 import datetime
 import uuid
 
+from typing import Generator
+
 from sqlalchemy import Column, TEXT, DateTime, ForeignKey, String, Integer, Boolean, Table
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from parser.db import DB
-
-#_db = DB()
 
 class BaseTree:
     """
@@ -38,7 +37,7 @@ class BaseTree:
 
     def __init__(self, *args, position=0, **kwargs):
         self.id = uuid.uuid1()
-        self.db = DB() # TODO: Вынести из объявления класса. Это замедляет сильно процесс
+        self.db = None
         self.position = position # Позиция в списке children у родителя
         self.children = []
         self.parent = None
@@ -52,9 +51,9 @@ class BaseTree:
     def __len__(self):
         return sum(map(len, self.children)) + 1
 
-    def get_parent(self, parent_type):
+    def get_parent(self, parent_type=None):
         """Найти родителя заданного типа"""
-        if self.type == parent_type:
+        if parent_type and self.type == parent_type:
             return self
 
         if self.parent:
@@ -89,13 +88,29 @@ class BaseTree:
             self._next = self.parent.children[self.position - 1]
         return self._next
 
-    def db_flush(self):
-        self.db_insert() # insert себя в базу
-        for _child in self.children:
-            _child.db_flush() # Добавление всех детей
+    def db_collect_models(self) -> Generator:
+        """Генератор для получения все элементов дерева список"""
+        yield self.to_db()
+
+        for child in self.children:
+            yield from child.db_collect_models()
+
+    def get_db(self):
+        """Найти db объект у родителей или создать"""
+        if self.db:
+            return self.db
+
+        parent = self.get_parent()
+        if not parent:
+            self.db = DB()
+            return self.db
+
+        return parent.get_db()
 
     def db_insert(self):
-        self.db.insert(self.to_db())
+        "Коммит себя и всех детей в базу"
+        self.db = self.get_db()
+        self.db.commit(self.db_collect_models())
 
     def to_db(self):
         """Собрать все ключи для таблици в базе и вернуть BaseNodeDB объект"""

@@ -64,6 +64,6 @@ if __name__ == '__main__':
 
     print("Запись в базу")
 
-    #tree_root.db_flush()
+    tree_root.db_insert()
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')
