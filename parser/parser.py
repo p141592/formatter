@@ -15,7 +15,7 @@ class Parser:
     def __init__(self, document=None, position=None):
         self.files = []
 
-        self.document = Document(self.check_file(document), position=position)
+        self.document = Document(file=self.check_file(document), position=position)
         self.prev_line = None  # Ссылка на предидущий объект
         self.line = None
         self.block = None

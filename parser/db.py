@@ -8,7 +8,7 @@ class DB:
     """
     __instance = None
     BASE = declarative_base()
-    ENGINE = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/formatter')
+    ENGINE = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/formatter', pool_size=50, max_overflow=20)
     METADATA = MetaData()
     session = None
 
@@ -31,9 +31,8 @@ class DB:
         instance = self.session.query(object.__class__).filter_by(id=object.id).first()
         return bool(instance)
 
-    def select(self):
-        """Выполнить запрос"""
-        pass
+    def close(self):
+        self.session.close()
 
     def add(self, object):
         if not self.exists(object):

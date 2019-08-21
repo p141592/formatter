@@ -8,12 +8,12 @@ class Root(BaseTree):
         self.children_type = Document
 
 class Document(BaseTree):
-    def __init__(self, file, *args, **kwargs):
-        super(Document, self).__init__(file, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(Document, self).__init__(*args, **kwargs)
         self.children_type = Block
-        self.file = open(file)
-        _, self.filename = os.path.split(file)
-        self.path = file
+        _file = kwargs.get('file')
+        self.file = open(_file) if _file else None
+        self.path, self.filename = os.path.split(kwargs.get('file')) if _file else (kwargs.get('path'), kwargs.get('filename'))
 
 class Block(BaseTree):
     def __init__(self, *args, **kwargs):
@@ -26,3 +26,6 @@ class Line(BaseTree):
         self.content = kwargs.get('content', None)  # Готовое значение
         self.line_number = kwargs.get('line_number', None)
         self.format_sign = False
+
+    def __bool__(self):
+        return bool(self.content)

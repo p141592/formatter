@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from parser.db import DB
 from parser.parser import Parser
 from parser.tree import BaseTree
 from parser.tree.nodes import Root
@@ -67,6 +68,7 @@ if __name__ == '__main__':
 
     tree_root.db_insert()
 
-    tree2 = BaseTree.load_object(tree_root.id, db=tree_root.get_db())
+    print("Извлечение объекта из базы")
+    tree2 = BaseTree.load_object(tree_root.id, db=DB())
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')
