@@ -3,6 +3,7 @@ import uuid
 
 from typing import Generator
 
+from marshmallow import fields, Schema
 from sqlalchemy import Column, TEXT, DateTime, ForeignKey, String, Integer, Boolean, Table
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -13,43 +14,26 @@ class BaseTree:
     Базовый класс нод.
     Управляет связями между нодами, добавлением элементов, преобразованием, и вообще всем.
     """
-    DB_FIELDS = (
-        # Описание объекта
-        'id',
-        'type', # Тип объекта строкой
-        'format_sign', # Признак формата в строке Boolean
-        
-        # Связи объекта
-        'parent', # ForeignKey на родителя объекта
-        #'children', # ManyToMany список объектов
-        #'previous', # Вычислямое поле предидущего элемента в списке родителя
-        #'next', # Вычисляемое поле, следующий элемент
-        'position', # Позиция в списке children у родителя
-
-        # Сохранение информации источника
-        'path', # Полный путь до файла
-        'filename', # Название файла
-
-        # Контект и информация по нему
-        'line_number', # Номер строки
-        'content' # Содержит исходную строку целиком
-    )
-
     def __init__(self, *args, position=0, **kwargs):
-        self.id = uuid.uuid1()
-        self.db = None
+        self.id = uuid.uuid1() # Ключ
+        self.type = self.__class__.__name__
+        self.db = None # Объект общения с базой
         self.position = position # Позиция в списке children у родителя
-        self.children = []
-        self.parent = None
-        self.children_type = None
-        self._previous = None
-        self._next = None
+        self.children = [] # Список детей
+        self.parent = None # Ссылка на родителя
+        self.children_type = None # Стандартный тип детей
+        self._previous = None # Ссылка на предидущий объект у родителя
+        self._next = None # Ссылка на следующий объект родителя
+        self.content = None
 
     def __str__(self):
         return self.content or ''
 
     def __len__(self):
         return sum(map(len, self.children)) + 1
+
+    def __bool__(self):
+        return bool(self.content)
 
     def get_parent(self, parent_type=None):
         """Найти родителя заданного типа"""
@@ -88,13 +72,6 @@ class BaseTree:
             self._next = self.parent.children[self.position - 1]
         return self._next
 
-    def db_collect_models(self) -> Generator:
-        """Генератор для получения все элементов дерева список"""
-        yield self.to_db()
-
-        for child in self.children:
-            yield from child.db_collect_models()
-
     def get_db(self):
         """Найти db объект у родителей или создать"""
         if self.db:
@@ -107,6 +84,14 @@ class BaseTree:
 
         return parent.get_db()
 
+    # Вставка данных в базу
+    def db_collect_models(self) -> Generator:
+        """Генератор для получения все элементов дерева список"""
+        yield self.to_db()
+
+        for child in self.children:
+            yield from child.db_collect_models()
+
     def db_insert(self):
         "Коммит себя и всех детей в базу"
         self.db = self.get_db()
@@ -114,31 +99,63 @@ class BaseTree:
 
     def to_db(self):
         """Собрать все ключи для таблици в базе и вернуть BaseNodeDB объект"""
-        _tmp = {k: v for k, v in self.__dict__.items() if k in self.DB_FIELDS}
-        if 'parent' in _tmp:
-            _tmp['parent_id'] = _tmp['parent'].id if _tmp['parent'] else None
-            _tmp.pop('parent')
+        serializator = BaseNodeDBSerializator().dump(self)
         return BaseNodeDB(
-            **_tmp
+            **serializator.data
         )
+
+    # Получение данных из базы
+    def db_get_children(self):
+        """Выполнить запрос на получение ID элементов, у которых я родитель"""
+        table = BaseNodeDB
+        data = self.get_db().session.query(table).filter(table.id == self.id).order_by(table.position)
+        return data
+
+    @classmethod
+    def load_object(cls, id, db=None, parent=None):
+        """Получить дерево начиная с ноды с этим ID"""
+        # Получить класс, который нужно объявить по типу
+        element = db.session.query(BaseNodeDB).filter(BaseNodeDB.id == id).first()
+        node_class = list(filter(lambda x: x.__name__ == element.type, BaseTree.__subclasses__()))
+        node_class = node_class[0] if node_class else None
+        object = node_class(**BaseNodeDBSerializator().load(element).data, parent=parent)
+        child = list(map(lambda id: cls.load_object(id, db=db, parent=object),object.db_get_children()))
+        return object
 
 class BaseNodeDB(DB.BASE):
     """Таблица для сохранения элементов дерева в базу"""
     __tablename__ = "node"
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid1, primary_key=True)
-
     type = Column(String(30))
-    format_sign = Column(Boolean)
 
-    parent_id = Column(UUID(as_uuid=True), ForeignKey('node.id'), nullable=True)
-    #parent = relationship(lambda: BaseNodeDB, remote_side=id, backref='node')
-    position = Column(Integer, nullable=True)
-
-    path = Column(String(100), comment='Путь до файла, который был объявлени при создании документа')
-    filename = Column(String(50), comment='Название документа')
-
+    path = Column(String(100))
+    filename = Column(String(50))
     line_number = Column(Integer, nullable=True)
     content = Column(TEXT, nullable=True)
 
+    format_sign = Column(Boolean)
+    parent = Column(UUID(as_uuid=True), ForeignKey('node.id'), nullable=True)
+    position = Column(Integer)
+
     created_date = Column(DateTime, default=datetime.datetime.now)
+
+class BaseNodeDBSerializator(Schema):
+    """Сериализатор объекта из базы и в базу
+    - Преобразование parent.id в parent
+    """
+    id = fields.UUID()
+    type = fields.String() # Тип объекта строкой
+    format_sign = fields.Boolean() # Признак формата в строке Boolean
+    parent = fields.Method("get_parent", deserialize="load_parent") # ForeignKey на родителя объекта
+    position = fields.Integer() # Позиция в списке children у родителя
+    path = fields.String() # Полный путь до файла
+    filename = fields.String() # Название файла
+    line_number = fields.Integer() # Номер строки
+    content = fields.String(allow_none=True) # Содержит исходную строку целиком
+
+    def get_parent(self, obj):
+        return str(obj.parent.id) if obj.parent else None
+
+    def load_parent(self, value):
+        return value

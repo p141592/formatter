@@ -4,33 +4,25 @@ from . import BaseTree
 
 class Root(BaseTree):
     def __init__(self, *args, **kwargs):
-        self.type = 'ROOT'
-        self.children_type = Document
         super(Root, self).__init__(*args, **kwargs)
+        self.children_type = Document
 
 class Document(BaseTree):
     def __init__(self, file, *args, **kwargs):
-        self.type = 'DOCUMENT'
+        super(Document, self).__init__(file, *args, **kwargs)
         self.children_type = Block
-
         self.file = open(file)
         _, self.filename = os.path.split(file)
         self.path = file
-        super(Document, self).__init__(*args, **kwargs)
 
 class Block(BaseTree):
     def __init__(self, *args, **kwargs):
-        self.type = 'BLOCK'
-        self.children_type = Line
         super(Block, self).__init__(*args, **kwargs)
+        self.children_type = Line
 
 class Line(BaseTree):
-    def __init__(self, *args, line_number=None, content=None, **kwargs):
-        self.content = content # Готовое значение
-        self.type = 'LINE' if content else 'BLANK'
-        self.line_number = line_number
-        self.format_sign = False
+    def __init__(self, *args, **kwargs):
         super(Line, self).__init__(*args, **kwargs)
-
-    def __bool__(self):
-        return bool(self.content)
+        self.content = kwargs.get('content', None)  # Готовое значение
+        self.line_number = kwargs.get('line_number', None)
+        self.format_sign = False

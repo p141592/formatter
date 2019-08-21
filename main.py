@@ -2,6 +2,7 @@ import datetime
 import os
 
 from parser.parser import Parser
+from parser.tree import BaseTree
 from parser.tree.nodes import Root
 
 SOURCE_DIR = os.path.join(
@@ -47,7 +48,7 @@ def read_all_source(dir):
     l = len(items)
 
     printProgressBar(0, FILES_LENGTH, prefix='Progress:', suffix='Complete', length=50)
-    for i, item in enumerate(items):
+    for i, item in enumerate(items[:10]):
         _document = Parser(ALL_FILES.pop(), position=i).read_document()
         ROOT._append(_document)
 
@@ -57,13 +58,15 @@ def read_all_source(dir):
 
 if __name__ == '__main__':
     START_TIME = datetime.datetime.now()
+    print(START_TIME)
 
     tree_root = read_all_source(SOURCE_DIR)
 
     print(f"Количество элементов в дереве: {len(tree_root)}")
-
     print("Запись в базу")
 
     tree_root.db_insert()
+
+    tree2 = BaseTree.load_object(tree_root.id, db=tree_root.get_db())
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')

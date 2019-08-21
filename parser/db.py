@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -9,15 +9,12 @@ class DB:
     __instance = None
     BASE = declarative_base()
     ENGINE = create_engine('postgresql+psycopg2://postgres:postgres@localhost:5432/formatter')
+    METADATA = MetaData()
     session = None
 
-    def __new__(cls, *args, **kwargs):
-        if cls.__instance is None:
-            cls.create_all()
-            cls.session = cls.create_session()
-            cls.__instance = super().__new__(cls)
-
-        return cls.__instance
+    def __init__(self):
+        self.create_all()
+        self.session = self.create_session()
 
     @staticmethod
     def create_all():
@@ -35,6 +32,7 @@ class DB:
         return bool(instance)
 
     def select(self):
+        """Выполнить запрос"""
         pass
 
     def add(self, object):
@@ -42,6 +40,7 @@ class DB:
             self.session.add(object)
 
     def commit(self, generator=None):
+        """Выполнить коммит объектов"""
         if generator:
             self.session.add_all(iter(generator))
         self.session.commit()
