@@ -109,26 +109,6 @@ class BaseTree:
         table = BaseNodeDB
         return self.get_db().session.query(table).filter(table.parent==self.id).order_by('position').all()
 
-    @classmethod
-    def load_object(cls, id, db=None):
-        """Получить дерево начиная с ноды с этим ID"""
-        # Получить элемент из базы
-        element = db.session.query(BaseNodeDB).filter(BaseNodeDB.id == id).first()
-        # Получить класс, который нужно объявить по типу
-        node_class = list(filter(lambda x: x.__name__ == element.type, BaseTree.__subclasses__()))
-        node_class = node_class[0] if node_class else None
-        # Получить объект дерева
-        serializer =  BaseNodeDBSerializator(many=False).load(element.__dict__)
-        if serializer.errors:
-            raise ValueError(serializer.errors)
-        object = node_class(**serializer.data)
-        list(
-            map(
-                lambda x: cls.load_object(x.id, db=db),
-                object.db_get_children()
-            )
-        )
-        return object
 
 class BaseNodeDB(DB.BASE):
     """Таблица для сохранения элементов дерева в базу"""

@@ -3,8 +3,9 @@ import os
 
 from parser.db import DB
 from parser.parser import Parser
+from parser.source import GitSource
 from parser.tree import BaseTree
-from parser.tree.nodes import Root
+from parser.tree.raw_nodes import Root
 
 SOURCE_DIR = os.path.join(
     os.path.dirname(
@@ -61,7 +62,10 @@ if __name__ == '__main__':
     START_TIME = datetime.datetime.now()
     print(START_TIME)
 
-    tree_root = read_all_source(SOURCE_DIR)
+    with GitSource() as document:
+        Parser(document).read()
+
+        tree_root = read_all_source(SOURCE_DIR)
 
     print(f"Количество элементов в дереве: {len(tree_root)}")
     print("Запись в базу")
@@ -69,6 +73,6 @@ if __name__ == '__main__':
     tree_root.db_insert()
 
     print("Извлечение объекта из базы")
-    tree2 = BaseTree.load_object(tree_root.id, db=DB())
+    tree2 = Parser.load_object(tree_root.id, db=DB())
 
     print(f'= DURATION: {datetime.datetime.now() - START_TIME}')
