@@ -1,6 +1,6 @@
 import os
 
-from . import BaseTree
+from tree import BaseTree
 
 
 class Root(BaseTree):

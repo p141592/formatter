@@ -1,6 +1,6 @@
 import pytest
 
-from src.parser import Parser
+from parser.parser import Parser
 from tests.format_sign_test_set import FORMAT_SIGN
 
 

@@ -1,10 +1,7 @@
 import os
-import re
-
 
 from exceptions import PathException
-from tree import BaseNodeDBSerializator, BaseTree
-from src.tree.nodes import Line, Root
+from tree.nodes import Line, Root
 
 
 class Parser:
@@ -32,15 +29,10 @@ class Parser:
             return path
         raise PathException
 
-    def read_line(self, line):
-        self.line = self.document.create_child(child_type=Line, line_number=self.line_number, content=line or None)
-        self.line_number += 1
-        return self.line
-
     def read_document(self, file):
         try:
-            for line in f.readlines():
-                _line = self.read_line(line.strip('\n'))
+            for index, line in enumerate(file.readlines()):
+                self.document.create_child(child_type=Line, line_number=index, content=line or None)
         except UnicodeDecodeError:
             print(f'Ошибка при чтении файла {self.document.path}')
 
@@ -48,7 +40,9 @@ class Parser:
 
     def load(self, source):
         """Формирование дерева"""
-        pass
+        with source as document:
+            self.read_document(document)
+        return self.root
 
     def parsing(self, formatter):
         """Применение правил формата"""

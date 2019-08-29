@@ -1,4 +1,4 @@
-from src.tree.nodes import BlankLine, RawLine
+from parser.tree.nodes import BlankLine, RawLine
 
 raw_line = lambda x: RawLine(offset=0, source=x)
 

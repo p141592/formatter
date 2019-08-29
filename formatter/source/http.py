@@ -1,3 +1,6 @@
+from source import BaseSource
+
+
 class GitSource(BaseSource):
     def __init__(self, url):
         super(GitSource, self).__init__()
