@@ -1,9 +1,13 @@
 import os
 import re
+import subprocess
 import time
+
+import git
+import requests
 from marshmallow import Schema, fields
 
-from exceptions import SourceNotFoundException, PathException
+from exceptions import SourceNotFoundException, PathException, SourceUrlConnectFailed
 
 
 class BaseSource:
@@ -15,8 +19,9 @@ class BaseSource:
     SEC_PATH = '/tmp/formatter' # Путь, куда можно сложить файлы
 
     class Serializer(Schema):
-        url = fields.String()
-        path = fields.String()
+        url = fields.URL(required=True)
+        path = fields.String(required=False)
+        files_regexp = fields.Raw(required=False)
 
     @classmethod
     def init(cls, **kwargs):
@@ -39,9 +44,15 @@ class BaseSource:
     @classmethod
     def match_source_url(cls, url):
         """Проверка URL на валидность"""
+        if not cls.REGEXP:
+            return True
+
         return bool(re.match(cls.REGEXP, url))
 
     def match_files_regexp(self, filename):
+        if not self.files_regexp:
+            return True
+
         return bool(re.match(self.files_regexp, filename))
 
     @staticmethod
@@ -50,40 +61,54 @@ class BaseSource:
             return path
         raise PathException
 
+    @classmethod
+    def create_source_path(cls):
+        os.makedirs(cls.SEC_PATH, exist_ok=True)
+
     @property
     def files(self):
         """Генератор, возвращающий дескриптор файла"""
-        for root, dirs, files in os.walk(os.path.join(self.source_path, self.path)):
+        _path = os.path.join(self.source_path, self.path)
+        for root, dirs, files in os.walk(_path):
             for _file in files:
                 if self.match_files_regexp(_file):
-                    yield os.path.join(root, _file)
+                    yield open(os.path.join(root, _file))
 
-    def __init__(self, url, path, files_regexp):
+    def __init__(self, url, path='', files_regexp=None):
         self.url = url
         self.path = path # Путь до файлов в исходнике
         self.files_regexp = files_regexp # Правило фильтрации файлов документации
         self.source_path = None # Куда мы положили новые файлы
-
-    def fetch_files(self):
-        raise NotImplementedError
+        self.create_source_path()
 
     def remove_files(self):
-        os.system(f'rm -f {self.source_path}')
+        subprocess.run(['rm', '-rf', self.source_path])
 
     def __enter__(self):
         # Получить файлы из пути, распаковать в безопасную папку
         # Сохранить Путь до папки с файлами
+        if not self.check_url():
+            raise SourceUrlConnectFailed
         self.fetch_files()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # Удалить файлы из папки
-        return
+        self.remove_files()
 
+    def fetch_files(self):
+        raise NotImplementedError
+
+    def check_url(self):
+        raise NotImplementedError
 
 class GitSource(BaseSource):
     REGEXP = r".*\.git$"
 
     def fetch_files(self):
         self.source_path = f'{self.SEC_PATH}/{time.time()}'
-        os.system(f'git clone {self.source_path}')
+        subprocess.run(["git", "clone", self.url, self.source_path])
+
+    def check_url(self):
+        r = requests.get(self.url)
+        return r.ok

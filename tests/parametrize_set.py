@@ -5,3 +5,11 @@ GIT_URLS = (
     ('https://gitlab.com/k0d/k0d/general-page.git', True),
     ('https://yandex.ru', False)
 )
+
+URLS_SET = (
+    ('https://gitlab.com/k0d/k0d/general-page.git', True),
+    ('https://yandex.ru', True),
+    ('https://github.com/python/peps.git', True),
+    ('/', False),
+    ('sdfsdf', False)
+)
