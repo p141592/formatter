@@ -23,12 +23,6 @@ class Parser:
             return
         return self.STATUS[self.status]
 
-    @staticmethod
-    def check_file(path):
-        if os.path.exists(path):
-            return path
-        raise PathException
-
     def read_document(self, file):
         try:
             for index, line in enumerate(file.readlines()):
