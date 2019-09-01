@@ -14,6 +14,7 @@ setup(
     license='BSD',
     packages=find_packages(),
     long_description=long_description,
+    long_description_content_type='text/markdown',
     test_suite='nose.collector',
     install_requires=[
         'marshmallow',
