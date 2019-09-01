@@ -1,4 +1,4 @@
-from tree.nodes import Line, Root
+from formatter.tree.nodes import Root
 
 
 class Parser:

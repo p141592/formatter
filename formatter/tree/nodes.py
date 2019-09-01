@@ -1,6 +1,6 @@
 import os
 
-from tree import BaseTree
+from formatter.tree import BaseTree
 
 
 class Root(BaseTree):

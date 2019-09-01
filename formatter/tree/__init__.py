@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from tree.serializer import BaseNodeDBSerializator
+from formatter.tree.serializer import BaseNodeDBSerializator
 
 
 class BaseTree:
