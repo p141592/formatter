@@ -1,3 +1,4 @@
+import json
 import uuid
 
 from tree.serializer import BaseNodeDBSerializator
@@ -66,8 +67,4 @@ class BaseTree:
         return self._next
 
     def to_json(self):
-        yield BaseNodeDBSerializator().dump(self)
-
-        for child in self.children:
-            yield from child.db_collect_models()
-
+        return json.dumps(BaseNodeDBSerializator().dump(self))

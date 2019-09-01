@@ -12,7 +12,7 @@ class Root(BaseTree):
 class Document(BaseTree):
     def __init__(self, *args, **kwargs):
         super(Document, self).__init__(*args, **kwargs)
-        self.children_type = Block
+        self.children_type = Paragraph
         _file = kwargs.get('file')
         self.file = open(_file) if _file else None
         self.path, self.filename = os.path.split(kwargs.get('file')) if _file else (
@@ -23,6 +23,7 @@ class Paragraph(BaseTree):
     """Разделение по 2 пустые строки"""
     def __init__(self, *args, **kwargs):
         super(Paragraph, self).__init__(*args, **kwargs)
+        self.children_type = Block
 
 
 class Block(BaseTree):
@@ -37,7 +38,6 @@ class Line(BaseTree):
         super(Line, self).__init__(*args, **kwargs)
         self.content = kwargs.get('content', None)  # Готовое значение
         self.line_number = kwargs.get('line_number', None)
-        self.format_sign = False
 
     def __bool__(self):
         return bool(self.content)
