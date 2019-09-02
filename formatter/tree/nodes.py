@@ -18,6 +18,9 @@ class Document(BaseTree):
         self.path, self.filename = os.path.split(kwargs.get('file')) if _file else (
         kwargs.get('path'), kwargs.get('filename'))
 
+    def __str__(self):
+        return self.filename
+
 
 class Paragraph(BaseTree):
     """Разделение по 2 пустые строки"""
@@ -31,22 +34,6 @@ class Block(BaseTree):
     def __init__(self, *args, **kwargs):
         super(Block, self).__init__(*args, **kwargs)
         self.children_type = Line
-
-
-class Text(Block):
-    """Текстовый блок"""
-
-
-class Code(Block):
-    """Блок с кодом"""
-
-
-class Table(Block):
-    """Таблица"""
-
-
-class List(Block):
-    """Список"""
 
 
 class Line(BaseTree):
@@ -64,9 +51,42 @@ class Sentence(BaseTree):
         super(Sentence, self).__init__(*args, **kwargs)
 
 
+# Базовые элементы форматированного дерева
+
+class Text(Block):
+    """Текстовый блок"""
+
+
+class Code(Block):
+    """Блок с кодом"""
+
+
+class EmbedBlock(Block):
+    """Embed элемент с интерактивом"""
+
+
+class Table(Block):
+    """Таблица"""
+
+
+class List(Block):
+    """Список"""
+
+
 class Image(BaseTree):
-    pass
+    """Хранение изображения"""
 
 
 class Link(BaseTree):
-    pass
+    """Хранение ссылки"""
+
+
+# Атомарные объекты дерева
+# Эти элементы должны храниться в content
+
+class Term(BaseTree):
+    """Слово"""
+
+
+class Phraze(BaseTree):
+    """Не делимые выражения"""

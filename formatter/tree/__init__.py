@@ -48,27 +48,34 @@ class BaseTree:
 
     def _append(self, node):
         """Добавить ноду в этот корень"""
+        self._next = None
+        self._previous = None
         node.parent = self
         self.children.append(node)
 
-    @property
     def previous(self):
         """Предидущий объект того же типа"""
-        if not self._previous and self.parent.children[-1] != self.position:
-            self._previous = self.parent.children[self.position-1]
+        if self.position == 0:
+            return None
+        if not self._previous:
+            self._previous = self.parent.children[self.position - 1]
+
         return self._previous
 
-    @property
     def next(self):
         """Следующий объект того же типа"""
-        if not self._next and self.position != 0:
-            self._next = self.parent.children[self.position - 1]
+        if self.parent.children[-1].position == self.position:
+            return None
+        if not self._next:
+            self._next = self.parent.children[self.position+1]
+
         return self._next
 
     def to_dict(self):
         _object = BaseNodeDBSerializator().dump(self)
         _object['children'] = []
-        list(map(lambda _child:_object['children'].append(_child.to_dict()), self.children))
+        if self.children:
+            list(map(lambda _child:_object['children'].append(_child.to_dict()), self.children))
 
         return _object
 
