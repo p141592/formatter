@@ -3,6 +3,7 @@ from marshmallow import ValidationError
 
 from formatter.exceptions import SourceNotFoundException
 from formatter.source import GitSource, BaseSource
+from tests.conftest import monkey_patch_fetch_files
 from tests.parametrize_set import GIT_URLS, URLS_SET
 
 # Тестирование Source
@@ -38,14 +39,18 @@ def test_context_manager():
     assert len(list(_source.files)) == 0
 
 # Получение дескриптора на файл
-def test_file_descriptor():
+def test_file_descriptor(monkeypatch):
+    monkeypatch.setattr(GitSource, "fetch_files", monkey_patch_fetch_files)
+
     _source = BaseSource.init(url='https://github.com/python/peps.git')
     with _source as source:
         for _file in source.files:
             assert _file.__class__.__name__ == 'TextIOWrapper'
 
 # Фильтрация файлов по regexp
-def test_files_filter():
+def test_files_filter(monkeypatch):
+    monkeypatch.setattr(GitSource, "fetch_files", monkey_patch_fetch_files)
+
     _source = BaseSource.init(url='https://github.com/python/peps.git', files_regexp=r'.*\.(txt|rst)$')
     with _source as source:
         for _file in source.files:

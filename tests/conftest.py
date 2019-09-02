@@ -1,19 +1,20 @@
+import os
+import subprocess
+
 import pytest
 
 from formatter import BaseSource, Parser, Root, Document, Block, Line
 
 
-@pytest.fixture
-def source():
-    return BaseSource.init(url='https://github.com/python/peps.git', files_regexp=r'.*\.(txt|rst)$')
+def monkey_patch_fetch_files(self):
+    mock_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'git_repo_mock.tar.gz')
+    subprocess.run(["tar", "xvfz", f"{mock_path}", "--directory", self.get_source_path()])
 
-@pytest.fixture
-def base_tree(source):
-    return Parser().load(source)
 
 @pytest.fixture
 def root():
     return Root()
+
 
 @pytest.fixture
 def document():
@@ -21,7 +22,9 @@ def document():
         if root:
             return root.create_child(child_type=Document)
         return Document()
+
     return wrap
+
 
 @pytest.fixture
 def block():
@@ -29,7 +32,9 @@ def block():
         if document:
             return document.create_child(child_type=Block, content='Block')
         return Block()
+
     return wrap
+
 
 @pytest.fixture
 def line():
@@ -45,7 +50,9 @@ def line():
         if block:
             return block.create_child(child_type=Line, **kwargs)
         return Line(**kwargs)
+
     return wrap
+
 
 @pytest.fixture
 def small_tree(root, document, line, block):
