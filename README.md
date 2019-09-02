@@ -1,4 +1,4 @@
-# Парсинг документов по формату и сериализация данных в базу 
+# A Python formatter from formats like rst and markdown to the content tree
 
 ## Source
 Объект для обращения с источником документов
