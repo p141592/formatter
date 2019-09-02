@@ -17,7 +17,7 @@ setup(
     long_description_content_type='text/markdown',
     test_suite='nose.collector',
     install_requires=[
-        'marshmallow',
+        'marshmallow', 'requests'
     ],
     py_modules=['formatter'],
     classifiers=[

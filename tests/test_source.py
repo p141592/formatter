@@ -1,10 +1,8 @@
-import os
-
 import pytest
 from marshmallow import ValidationError
 
-from exceptions import SourceNotFoundException
-from source import GitSource, BaseSource
+from formatter.exceptions import SourceNotFoundException
+from formatter.source import GitSource, BaseSource
 from tests.parametrize_set import GIT_URLS, URLS_SET
 
 # Тестирование Source

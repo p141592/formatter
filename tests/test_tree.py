@@ -1,5 +1,8 @@
 # Тестирование работы дерева
-from tests.parametrize_set import TEST_TREE, TEST_TREE_JSON
+import json
+
+from formatter.tree import BaseNodeDBSerializator, BaseTree
+from tests.parametrize_set import TEST_TREE
 
 
 # Добавление ребенка
@@ -8,4 +11,8 @@ from tests.parametrize_set import TEST_TREE, TEST_TREE_JSON
 
 # Преобразование в JSON
 def test_to_json():
-    TEST_TREE.to_json()
+    # from tree
+    _json = TEST_TREE.to_dict()
+    # to tree
+    tree = BaseTree.from_dict(_json)
+    pass
