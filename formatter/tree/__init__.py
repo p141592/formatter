@@ -1,3 +1,4 @@
+import collections
 import json
 import uuid
 
@@ -10,9 +11,7 @@ class BaseTree:
     Управляет связями между нодами, добавлением элементов, преобразованием, и вообще всем.
     """
     def __init__(self, *args, position=0, **kwargs):
-        self.id =  kwargs.get('id', uuid.uuid1()) # Ключ
         self.type = self.__class__.__name__
-        self.db = None # Объект общения с базой
         self.position = position # Позиция в списке children у родителя
         self.children = [] # Список детей
         self.parent = None # Ссылка на родителя
@@ -66,5 +65,24 @@ class BaseTree:
             self._next = self.parent.children[self.position - 1]
         return self._next
 
-    def to_json(self):
-        return json.dumps(BaseNodeDBSerializator().dump(self))
+    def to_dict(self):
+        _object = BaseNodeDBSerializator().dump(self)
+        _object['children'] = []
+        list(map(lambda _child:_object['children'].append(_child.to_dict()), self.children))
+
+        return _object
+
+    @classmethod
+    def from_dict(cls, source):
+        _children = source.pop('children')
+
+        _object = BaseNodeDBSerializator().load(source)
+
+        node_class = list(filter(lambda x: x.__name__ == _object.get('type'), BaseTree.__subclasses__()))
+        node_class = node_class[0] if node_class else None
+        object = node_class(**_object)
+
+        for _child in _children:
+            object._append(cls.from_dict(_child))
+
+        return object

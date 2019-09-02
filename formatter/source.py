@@ -3,7 +3,6 @@ import re
 import subprocess
 import time
 
-import git
 import requests
 from marshmallow import Schema, fields
 

@@ -33,6 +33,22 @@ class Block(BaseTree):
         self.children_type = Line
 
 
+class Text(Block):
+    """Текстовый блок"""
+
+
+class Code(Block):
+    """Блок с кодом"""
+
+
+class Table(Block):
+    """Таблица"""
+
+
+class List(Block):
+    """Список"""
+
+
 class Line(BaseTree):
     def __init__(self, *args, **kwargs):
         super(Line, self).__init__(*args, **kwargs)
@@ -46,3 +62,11 @@ class Line(BaseTree):
 class Sentence(BaseTree):
     def __init__(self, *args, **kwargs):
         super(Sentence, self).__init__(*args, **kwargs)
+
+
+class Image(BaseTree):
+    pass
+
+
+class Link(BaseTree):
+    pass
