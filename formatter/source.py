@@ -61,8 +61,16 @@ class BaseSource:
         raise PathException
 
     @classmethod
-    def create_source_path(cls):
+    def create_base_path(cls):
         os.makedirs(cls.SEC_PATH, exist_ok=True)
+
+    def get_source_path(self):
+        self.create_base_path()
+        if not self.source_path:
+            self.source_path = f'{self.SEC_PATH}/{time.time()}'
+            os.makedirs(self.source_path, exist_ok=True)
+
+        return self.source_path
 
     @property
     def files(self):
@@ -78,10 +86,9 @@ class BaseSource:
         self.path = path # Путь до файлов в исходнике
         self.files_regexp = files_regexp # Правило фильтрации файлов документации
         self.source_path = None # Куда мы положили новые файлы
-        self.create_source_path()
 
     def remove_files(self):
-        subprocess.run(['rm', '-rf', self.source_path])
+        subprocess.run(['rm', '-rf', self.get_source_path()])
 
     def __enter__(self):
         # Получить файлы из пути, распаковать в безопасную папку
@@ -105,8 +112,7 @@ class GitSource(BaseSource):
     REGEXP = r".*\.git$"
 
     def fetch_files(self):
-        self.source_path = f'{self.SEC_PATH}/{time.time()}'
-        subprocess.run(["git", "clone", self.url, self.source_path])
+        subprocess.run(["git", "clone", self.url, self.get_source_path()])
 
     def check_url(self):
         r = requests.get(self.url)

@@ -5,5 +5,5 @@ venv
 .env
 .DS_Store
 .vscode
-.egg-info
+*.egg-info
 dist/

@@ -1,10 +1,12 @@
 # Тестирование работы дерева
 import pytest
 
-from formatter import Document, Root, Paragraph, Line, Block
+from formatter import Document, Root, Paragraph, Line, Block, Parser
+from formatter.source import GitSource, BaseSource
 from formatter.tree import BaseTree
 
 # Добавление ребенка
+from tests.conftest import monkey_patch_fetch_files
 from tests.parametrize_set import NODES_LIST
 
 
@@ -61,8 +63,12 @@ def test_next_child(block):
 
 
 # Преобразование в JSON
-def test_to_dict(base_tree):
+def test_to_dict(monkeypatch):
     """Базовая конвертация"""
+    monkeypatch.setattr(GitSource, "fetch_files", monkey_patch_fetch_files)
+
+    base_tree = Parser().load(BaseSource.init(url='https://github.com/python/peps.git', files_regexp=r'.*\.(txt|rst)$'))
+
     BaseTree.from_dict(base_tree.to_dict())
 
 
