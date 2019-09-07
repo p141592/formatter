@@ -55,14 +55,23 @@ class Sentence(BaseTree):
 
 class Text(Block):
     """Текстовый блок"""
+    def __init__(self, *args, **kwargs):
+        super(Text, self).__init__(*args, **kwargs)
+        self.children_type = Sentence
 
 
 class Code(Block):
     """Блок с кодом"""
+    def __init__(self, *args, **kwargs):
+        super(Code, self).__init__(*args, **kwargs)
+        self.children_type = Line
 
 
 class EmbedBlock(Block):
     """Embed элемент с интерактивом"""
+    def __init__(self, *args, **kwargs):
+        super(EmbedBlock, self).__init__(*args, **kwargs)
+        self.children_type = Line
 
 
 class Table(Block):
@@ -71,14 +80,21 @@ class Table(Block):
 
 class List(Block):
     """Список"""
+    def __init__(self, *args, **kwargs):
+        super(List, self).__init__(*args, **kwargs)
+        self.children_type = List
 
 
 class Image(BaseTree):
     """Хранение изображения"""
+    def __init__(self, *args, **kwargs):
+        super(Image, self).__init__(*args, **kwargs)
+        self.children_type = None
 
 
 class Link(BaseTree):
     """Хранение ссылки"""
+
 
 
 # Атомарные объекты дерева
@@ -86,7 +102,13 @@ class Link(BaseTree):
 
 class Term(BaseTree):
     """Слово"""
+    def __init__(self, *args, **kwargs):
+        super(Term, self).__init__(*args, **kwargs)
+        self.children_type = None
 
 
 class Phraze(BaseTree):
     """Не делимые выражения"""
+    def __init__(self, *args, **kwargs):
+        super(Phraze, self).__init__(*args, **kwargs)
+        self.children_type = Term
