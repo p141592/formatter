@@ -76,9 +76,19 @@ class EmbedBlock(Block):
 
 class Table(Block):
     """Таблица"""
+    def __init__(self, *args, **kwargs):
+        super(Table, self).__init__(*args, **kwargs)
+        self.children_type = Column
 
 
-class List(Block):
+class Column(BaseTree):
+    """Колонка"""
+    def __init__(self, *args, **kwargs):
+        super(Column, self).__init__(*args, **kwargs)
+        self.children_type = None
+
+
+class List(BaseTree):
     """Список"""
     def __init__(self, *args, **kwargs):
         super(List, self).__init__(*args, **kwargs)
@@ -94,11 +104,13 @@ class Image(BaseTree):
 
 class Link(BaseTree):
     """Хранение ссылки"""
-
-
+    def __init__(self, *args, **kwargs):
+        super(Link, self).__init__(*args, **kwargs)
+        self.children_type = None
 
 # Атомарные объекты дерева
 # Эти элементы должны храниться в content
+
 
 class Term(BaseTree):
     """Слово"""
