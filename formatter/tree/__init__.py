@@ -22,6 +22,10 @@ class BaseTree:
         self.filename = None
         self.path = None
 
+    @classmethod
+    def base_check(self):
+        raise NotImplementedError
+
     def __str__(self):
         return self.content or ''
 
