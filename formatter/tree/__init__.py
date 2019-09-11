@@ -1,5 +1,6 @@
 import collections
 import json
+import re
 import uuid
 
 from formatter.tree.serializer import BaseNodeDBSerializator
@@ -10,6 +11,8 @@ class BaseTree:
     Базовый класс нод.
     Управляет связями между нодами, добавлением элементов, преобразованием, и вообще всем.
     """
+    CHECK_RULE = None
+
     def __init__(self, *args, position=0, **kwargs):
         self.type = self.__class__.__name__
         self.position = position # Позиция в списке children у родителя
@@ -23,8 +26,15 @@ class BaseTree:
         self.path = None
 
     @classmethod
-    def base_check(self):
-        raise NotImplementedError
+    def base_check(cls, content):
+        """
+        Проверка контента, перед созданием элемента дерева
+        Используется при создании элемента форматтером
+        """
+        if not cls.CHECK_RULE:
+            raise True
+
+        return re.match(cls.CHECK_RULE, content)
 
     def __str__(self):
         return self.content or ''

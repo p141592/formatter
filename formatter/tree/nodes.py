@@ -45,13 +45,13 @@ class Line(BaseTree):
     def __bool__(self):
         return bool(self.content)
 
+# Базовые элементы форматированного дерева
+
 
 class Sentence(BaseTree):
     def __init__(self, *args, **kwargs):
         super(Sentence, self).__init__(*args, **kwargs)
 
-
-# Базовые элементы форматированного дерева
 
 class Text(Block):
     """Текстовый блок"""
