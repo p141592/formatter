@@ -18,7 +18,7 @@ class RSTRules(BaseFormatRules):
             #
             (r"", None, self.table),
             #
-            (r"", None, self.list),
+            (r"(^\s{0,})(\*|\-|\#\.|\d\.)(\s)(.*)", None, self.list),
             #
             (r"", None, self.definition),
             #
