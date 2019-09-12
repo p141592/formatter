@@ -5,7 +5,14 @@ from formatter.tree.nodes import Text
 class RSTRules(BaseFormatRules):
     def __init__(self, *args, **kwargs):
         super(RSTRules, self).__init__(*args, **kwargs)
-        self.RULES = (
+        self.LINE_RULES = (
+            (r"^=+$|^-+$|^~+$|^\"+$", None, self.title),
+            (r"\*{2}.*\*{2}", None, self.bold),
+            (r"", None, self.italic), # TODO: Текст курсивом
+            (r"\`{2}.*\`{2}", None, self.pre), # Текст как есть
+        )
+
+        self.BLOCK_RULES = (
             #
             (r"1", Text, None),
             #
