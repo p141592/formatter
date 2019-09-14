@@ -55,14 +55,23 @@ class Parser:
 
         return self.document
 
-    def load(self, source):
-        """Формирование дерева"""
+    def load(self, source, format=None):
+        """Создание content_tree из документа
+
+        1. format_file
+        2. document -> pandoc -> JSON
+        3. JSON -> content_tree
+        """
         with source as _source:
             for _file in _source.files:
                 self.document = self.root.create_child()
                 self.read_document(_file)
         return self.root
 
-    def parsing(self, formatter):
-        """Применение правил формата"""
+    def parsing(self, tree, format):
+        """Форматирование content_tree в файл формата
+
+        1. content_tree -> JSON
+        2. JSON -> pandoc -> format_file
+        """
         pass
