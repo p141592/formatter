@@ -67,13 +67,6 @@ class Code(Block):
         self.children_type = Line
 
 
-class EmbedBlock(Block):
-    """Embed элемент с интерактивом"""
-    def __init__(self, *args, **kwargs):
-        super(EmbedBlock, self).__init__(*args, **kwargs)
-        self.children_type = Line
-
-
 class Table(Block):
     """Таблица"""
     def __init__(self, *args, **kwargs):

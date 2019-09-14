@@ -9,6 +9,7 @@ from formatter.tree.nodes import Root, Document, Paragraph, Block, Line
 
 
 class Formatter:
+    """Получение фалай формата, получение AST дерева, преобразование в собственное дерево"""
     def __init__(self, format: BaseFormatRules):
         assert isinstance(format, BaseFormatRules), "Объект формата должен быть наследником BaseFormatRules"
         self.format = format
