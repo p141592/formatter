@@ -1,9 +1,12 @@
+import json
+
+import pypandoc as pypandoc
+
 from formatter.tree.nodes import Root
 
 
 class Parser:
     """Деление документа на параграфы и блоки"""
-    STATUS = ('idle', 'parsing', 'raw', 'formatting', 'done')
     def __init__(self):
         """Принимает на вход объект Source и из него формирует Document"""
         self.root = Root()
@@ -13,15 +16,11 @@ class Parser:
         self.paragraph = None
         self.block = None
         self.line = None
+        self.pandoc_types = set()
 
         self.prev_line = []  # Ссылка на 2 предидущих объекта
         self.position = 0
         self.line_number = 1
-
-    def get_status(self):
-        if self.status is None:
-            return
-        return self.STATUS[self.status]
 
     def close_element(self):
         if self.block:
@@ -40,14 +39,10 @@ class Parser:
 
         self.block.create_child(line_number=index, content=content)
 
-    def read_document(self, file):
+    def read_document(self, file, format):
         try:
-            for index, line in enumerate(file.readlines()):
-                _content = line.strip('\n')
-                if not _content:
-                    self.close_element()
-                else:
-                    self.append_element(index, _content)
+            _pandoc_json = pypandoc.convert_file(file, "json", format=format)
+            pass
 
         except UnicodeDecodeError:
             print(f'Ошибка при чтении файла {self.document.path}')
@@ -55,7 +50,7 @@ class Parser:
 
         return self.document
 
-    def load(self, source, format=None):
+    def load(self, source):
         """Создание content_tree из документа
 
         1. format_file
@@ -65,7 +60,7 @@ class Parser:
         with source as _source:
             for _file in _source.files:
                 self.document = self.root.create_child()
-                self.read_document(_file)
+                self.read_document(_file, source.format)
         return self.root
 
     def parsing(self, tree, format):
@@ -74,4 +69,3 @@ class Parser:
         1. content_tree -> JSON
         2. JSON -> pandoc -> format_file
         """
-        pass

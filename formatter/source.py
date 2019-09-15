@@ -21,6 +21,7 @@ class BaseSource:
         url = fields.URL(required=True)
         path = fields.String(required=False)
         files_regexp = fields.Raw(required=False)
+        format = fields.String(required=True)
 
     @classmethod
     def init(cls, **kwargs):
@@ -79,13 +80,14 @@ class BaseSource:
         for root, dirs, files in os.walk(_path):
             for _file in files:
                 if self.match_files_regexp(_file):
-                    yield open(os.path.join(root, _file))
+                    yield os.path.join(root, _file)
 
-    def __init__(self, url, path='', files_regexp=None):
+    def __init__(self, url, path='', files_regexp=None, format=None):
         self.url = url
         self.path = path # Путь до файлов в исходнике
         self.files_regexp = files_regexp # Правило фильтрации файлов документации
         self.source_path = None # Куда мы положили новые файлы
+        self.format = format
 
     def remove_files(self):
         subprocess.run(['rm', '-rf', self.get_source_path()])
