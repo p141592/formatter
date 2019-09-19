@@ -2,47 +2,22 @@ import json
 
 import pypandoc as pypandoc
 
-from formatter.tree.nodes import Root
-
 
 class Parser:
-    """Деление документа на параграфы и блоки"""
+    """Сбор слов для перевода"""
     def __init__(self):
         """Принимает на вход объект Source и из него формирует Document"""
-        self.root = Root()
-        self.status = None
-
         self.document = None
-        self.paragraph = None
-        self.block = None
-        self.line = None
-        self.pandoc_types = set()
 
-        self.prev_line = []  # Ссылка на 2 предидущих объекта
-        self.position = 0
-        self.line_number = 1
-
-    def close_element(self):
-        if self.block:
-            self.block = None
-            return
-        if self.paragraph:
-            self.paragraph = None
-            return
-
-    def append_element(self, index, content):
-        if not self.paragraph:
-            self.paragraph = self.document.create_child()
-
-        if not self.block:
-            self.block = self.paragraph.create_child()
-
-        self.block.create_child(line_number=index, content=content)
+    def from_dict(self, block):
+        t, c = block.items()
+        return
 
     def read_document(self, file, format):
+        # Чтение документа
         try:
-            _pandoc_json = pypandoc.convert_file(file, "json", format=format)
-            pass
+            for block in json.loads(pypandoc.convert_file(file, "json", format=format)).get('blocks'):
+                self.document._append(self.from_dict(block))
 
         except UnicodeDecodeError:
             print(f'Ошибка при чтении файла {self.document.path}')
